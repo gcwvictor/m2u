@@ -1,0 +1,125 @@
+@font-face {font-family: Inter-Regular; src: url(/assets/fonts/Inter-Regular.woff2) format(woff2);}
+@font-face {font-family: Inter-Medium; src: url(/assets/fonts/Inter-Medium.woff2) format(woff2);}
+@font-face {font-family: Inter-Semibold; src: url(/assets/fonts/Inter-SemiBold.woff2) format(woff2);}
+@font-face {font-family: Inter-Bold; src: url(/assets/fonts/Inter-Bold.woff2) format(woff2);}
+
+:root {
+  /* Colors */
+  --primary-main: #125d72; --primary-surface: #f7fbfd; --primary-border: #dceff4; --primary-hover: #3797b2; --primary-pressed: #18424e; --primary-focus: rgba(47, 128, 151, 0.2);
+  --secondary-main: #14a2ba; --secondary-surface: #f7fcfd; --secondary-border: #dcf0f4; --secondary-hover: #379fb2; --secondary-pressed: #21616c;
+  --warning-main: #cd7b2e; --warning-surface: #ffead1; --warning-border: #eeceb0; --warning-hover: #bf6919; --warning-pressed: #734011;
+  --danger-main: #cb3a31; --danger-surface: #fff4f2; --danger-border: #eeb4b0; --danger-hover: #bd251c; --danger-pressed: #731912;
+  --success-main: #43936c; --success-surface: #d1ffe9; --success-border: #b8dbca; --success-hover: #367a59; --success-pressed: #20573d;
+  --info-main: #3267e3; --info-surface: #f0f3ff; --info-border: #b1c5f6; --info-hover: #114cd6; --info-pressed: #11317d;
+  --neutral-10: #ffffff; --neutral-20: #ebf0f4; --neutral-30: #e4e9ec; --neutral-40: #d8dce0; --neutral-50: #babec1;
+  --neutral-60: #989b9d; --neutral-70: #717375; --neutral-80: #5d5f61; --neutral-90: #3d3f40; --neutral-100: #0a0a0a;
+
+  /* Fonts */
+  --s-regular-font-family: Inter-Regular, sans-serif; --s-regular-font-size: 12px; --s-regular-line-height: 16px; --s-regular-font-weight: 400; --s-regular-font-style: normal;
+  --s-medium-font-family: Inter-Medium, sans-serif; --s-medium-font-size: 12px; --s-medium-line-height: 16px; --s-medium-font-weight: 500; --s-medium-font-style: normal;
+  --s-semibold-font-family: Inter-SemiBold, sans-serif; --s-semibold-font-size: 12px; --s-semibold-line-height: 16px; --s-semibold-font-weight: 600; --s-semibold-font-style: normal;
+  --p2-regular-font-family: Inter-Regular, sans-serif; --p2-regular-font-size: 14px; --p2-regular-line-height: 20px; --p2-regular-font-weight: 400; --p2-regular-font-style: normal;
+  --p2-medium-font-family: Inter-Medium, sans-serif; --p2-medium-font-size: 14px; --p2-medium-line-height: 20px; --p2-medium-font-weight: 500; --p2-medium-font-style: normal;
+  --p2-semibold-font-family: Inter-SemiBold, sans-serif; --p2-semibold-font-size: 14px; --p2-semibold-line-height: 20px; --p2-semibold-font-weight: 600; --p2-semibold-font-style: normal;
+  --p1-regular-font-family: Inter-Regular, sans-serif; --p1-regular-font-size: 16px; --p1-regular-line-height: 24px; --p1-regular-font-weight: 400; --p1-regular-font-style: normal;
+  --p1-medium-font-family: Inter-Medium, sans-serif; --p1-medium-font-size: 16px; --p1-medium-line-height: 24px; --p1-medium-font-weight: 500; --p1-medium-font-style: normal;
+  --p1-semibold-font-family: Inter-SemiBold, sans-serif; --p1-semibold-font-size: 16px; --p1-semibold-line-height: 24px; --p1-semibold-font-weight: 600; --p1-semibold-font-style: normal;
+  --heading-h4-font-family: Inter-Medium, sans-serif; --heading-h4-font-size: 16px; --heading-h4-line-height: 24px; --heading-h4-font-weight: 700; --heading-h4-font-style: normal;
+  --heading-h3-font-family: Inter-SemiBold, sans-serif; --heading-h3-font-size: 20px; --heading-h3-line-height: 28px; --heading-h3-font-weight: 700; --heading-h3-font-style: normal;
+  --heading-h2-font-family: Inter-Bold, sans-serif; --heading-h2-font-size: 28px; --heading-h2-line-height: 36px; --heading-h2-font-weight: 700; --heading-h2-font-style: normal;
+  --heading-h1-font-family: Inter-Bold, sans-serif; --heading-h1-font-size: 36px; --heading-h1-line-height: 44px; --heading-h1-font-weight: 700; --heading-h1-font-style: normal;
+}
+
+body{
+  margin: 0px;
+  height: 100%;
+  align-items: center;
+  align-content: center;
+}
+.container {
+  background: var(--neutral-10, #ffffff);
+  height: 100%;
+}
+.headline-logos{
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  justify-content: center;
+  position: relative;
+  top: 48px;
+}
+.product{
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+  position: relative;
+  align-items: center;
+  top: 144px;
+}
+.headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.m-2-u {
+  color: var(--neutral-100);
+  font-family: var(--heading-h1-font-family, Inter-Bold, sans-serif);
+  font-weight: var(--heading-h1-font-weight, 700);
+  text-align: center;
+  font-size: 96px;
+  letter-spacing: -0.022000000000000002em;
+  position: relative;
+}
+.monitoring-machine-unit {
+  color: var(--neutral-100, #0a0a0a);
+  text-align: center;
+  font-family: var(--heading-h1-font-family, Inter-Bold, sans-serif);
+  font-size: var(--heading-h1-font-size, 36px);
+  line-height: var(--heading-h1-line-height, 44px);
+  letter-spacing: var(--heading-h1-letter-spacing, -0.022000000000000002em);
+  font-weight: var(--heading-h1-font-weight, 700);
+  position: relative;
+}
+.inputOptions {
+  display: flex;
+  flex-direction: row;
+  gap: 72px;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  
+}
+.btnInput{  
+  background: var(--primary-main, #125d72);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 300px;
+  height: 150px;
+  position: relative;
+  color: var(--neutral-10);
+  text-decoration-line: none;
+  text-align: center;
+  font-family: var(--heading-h3-font-family);
+  font-size: var(--heading-h3-font-size, 20px);
+  line-height: var(--heading-h3-line-height, 28px);
+  letter-spacing: var(--heading-h3-letter-spacing, -0.017em);
+  font-weight: var(--heading-h3-font-weight, 600);
+  border-style: none;
+  cursor: pointer;
+}
+.btnInput:hover{  
+  background: var(--primary-hover, #125d72);
+  transition: 0.3s;
+}
+.btnInput:active{  
+  background: var(--primary-pressed, #125d72);
+  transition: 0.3s;
+}
