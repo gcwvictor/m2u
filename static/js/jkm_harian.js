@@ -1,11 +1,11 @@
 function navigateToHome(){
-    window.location.href = "./index.html";
+    window.location.href = "../views/index.html";
 }
 function navigateToGangguan(){
-    window.location.href = "./temuan_gangguan.html";
+    window.location.href = "../views/temuan_gangguan.html";
 }
 function navigateToMaintenance(){
-    window.location.href = "./maintenance.html";
+    window.location.href = "../views/maintenance.html";
 }
 function setActiveTab() {
       const url = window.location.pathname;

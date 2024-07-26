@@ -1,9 +1,9 @@
 function navigateToJKM(){
-    window.location.href = "./jkm_harian.html";
+    window.location.href = "../views/jkm_harian.html";
 }
 
 function navigateToHome(){
-      window.location.href = "./index.html";
+      window.location.href = "../views/index.html";
 }
 function setActiveTab() {
     const url = window.location.pathname;
