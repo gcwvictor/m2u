@@ -3,6 +3,10 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const app = express();
@@ -21,7 +25,13 @@ db.once('open', () => {
 });
 
 // Define schemas and models
+const userSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+});
+
 const jkmSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   tanggal: String,
   unit_mesin: String,
   jkm_harian: Number,
@@ -32,18 +42,63 @@ const jkmSchema = new mongoose.Schema({
 });
 
 const gangguanSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   tanggal: String,
   nama_gangguan: String,
   unit_mesin: String,
   foto: String,
 });
 
+const User = mongoose.model('User', userSchema);
 const JkmData = mongoose.model('JkmData', jkmSchema);
 const GangguanData = mongoose.model('GangguanData', gangguanSchema);
 
 // Middleware
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static(path.join(__dirname, 'views')));
+
+// Session management
+app.use(session({
+  secret: 'secret', // Make sure to replace 'your_secret_key' with a strong secret key
+  resave: false,
+  saveUninitialized: false,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport configuration
+passport.use(new LocalStrategy(async (username, password, done) => {
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username.' });
+    }
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return done(null, false, { message: 'Incorrect password.' });
+    }
+    return done(null, user);
+  } catch (err) {
+    return done(err);
+  }
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -57,10 +112,44 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Authentication middleware
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login.html');
+}
+
 // Endpoints
+// User registration
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = new User({ username, password: hashedPassword });
+  try {
+    await user.save();
+    res.redirect('/login.html');
+  } catch (err) {
+    res.status(400).send('Error registering user');
+  }
+});
+
+// User login
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login.html',
+  failureFlash: false
+}));
+
+// User logout
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/login.html');
+});
+
 // JKM Harian CRUD
-app.post('/saveJkmData', async (req, res) => {
-  const data = new JkmData(req.body);
+app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
+  const data = new JkmData({ ...req.body, user: req.user._id });
   try {
     await data.save();
     res.status(201).send('Data added...');
@@ -69,19 +158,29 @@ app.post('/saveJkmData', async (req, res) => {
   }
 });
 
-app.get('/getJkmData', async (req, res) => {
+app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
   try {
-    const results = await JkmData.find();
+    const results = await JkmData.find({ user: req.user._id });
     res.status(200).send(results);
   } catch (err) {
     res.status(400).send('Error fetching data');
   }
 });
 
+app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    await JkmData.findByIdAndDelete(req.params.id);
+    res.status(200).send('Data deleted');
+  } catch (err) {
+    res.status(400).send('Error deleting data');
+  }
+});
+
 // Temuan Gangguan CRUD
-app.post('/saveGangguanData', upload.single('foto'), async (req, res) => {
+app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   const data = new GangguanData({
     ...req.body,
+    user: req.user._id,
     foto: req.file ? req.file.path : '',
   });
   try {
@@ -92,31 +191,27 @@ app.post('/saveGangguanData', upload.single('foto'), async (req, res) => {
   }
 });
 
-app.get('/getGangguanData', async (req, res) => {
+app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
   try {
-    const results = await GangguanData.find();
+    const results = await GangguanData.find({ user: req.user._id });
     res.status(200).send(results);
   } catch (err) {
     res.status(400).send('Error fetching data');
   }
 });
 
-app.delete('/deleteJkmData/:id', async (req, res) => {
-    try {
-      await JkmData.findByIdAndDelete(req.params.id);
-      res.status(200).send('Data deleted');
-    } catch (err) {
-      res.status(400).send('Error deleting data');
-    }
-  });
-  
-app.delete('/deleteGangguanData/:id', async (req, res) => {
+app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
   try {
     await GangguanData.findByIdAndDelete(req.params.id);
     res.status(200).send('Data deleted');
   } catch (err) {
     res.status(400).send('Error deleting data');
   }
+});
+
+// Endpoint to get user info
+app.get('/user', ensureAuthenticated, (req, res) => {
+  res.json({ username: req.user.username });
 });
 
 app.listen(port, () => {

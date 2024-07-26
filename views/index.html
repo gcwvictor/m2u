@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M2U (Monitoring Maintenance Unit)</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="headline-logos">
+            <img width="140px" src="/static/images/pln_logo.png">
+            <img width="140px" src="/static/images/pln_logo.png">
+        </div>
+        <div class="product">
+            <div class="headline">
+                <div class="m-2-u">M2U</div>
+                <div class="monitoring-machine-unit">Monitoring Maintenance Unit</div>
+            </div>
+            <div class="inputOptions">
+                <button class="btnInput" onclick="navigateToJKM()">Input JKM Harian</button>
+                <button class="btnInput" onclick="navigateToGangguan()">Input Temuan Gangguan</button>
+            </div>
+        </div>
+        <div class="user-info">
+            <p>Welcome, <span id="username"></span>!</p>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <script>
+        function navigateToJKM() {
+            window.location.href = "./jkm_harian.html";
+        }
+
+        function navigateToGangguan() {
+            window.location.href = "./temuan_gangguan.html";
+        }
+
+        // Assuming user info is stored in a cookie or can be fetched from an endpoint
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/user')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('username').textContent = data.username;
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        });
+    </script>
+</body>
+</html>

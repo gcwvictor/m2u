@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Temuan Gangguan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/stylesGangguan.css">
+    <script src="/static/js/temuan_gangguan.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="containerForm">
+        <div class="verTab">
+            <div class="topVertab">
+                <img class="logoForm" src="/static/images/pln_logo_1x1.png" alt="pln_logo" onclick="navigateToHome()">
+            </div>
+            <div class="bottomVertab">
+                <button class="tabButton" id="jkmButton" onclick="navigateToJKM()">
+                    <i class="fa-xl fa-solid fa-file-lines"></i>
+                </button>
+                <button class="tabButton" id="gangguanButton" onclick="navigateToGangguan()">
+                    <i class="fa-xl fa-solid fa-bug"></i>
+                </button>
+            </div>
+        </div>
+        <div class="formArea">
+            <div class="headline23">Input Temuan Gangguan</div>
+            <form class="fieldArea" id="gangguanForm" action="/submit_gangguan" method="POST" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
+                <div class="formField">
+                    <label class="fieldLabel" for="tanggal">Tanggal*</label>
+                    <input class="textField" type="date" id="tanggal" name="tanggal" required>
+                </div>
+                <div class="formField">
+                    <label class="fieldLabel" for="nama_gangguan">Keterangan*</label>
+                    <input class="textField" type="text" id="nama_gangguan" name="nama_gangguan" required>
+                </div>
+                <div class="formField">
+                    <label class="fieldLabel" for="unit_mesin">Unit Mesin*</label>
+                    <select class="dropdown" id="unit_mesin" name="unit_mesin" required>
+                        <option value="1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106">1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106</option>
+                        <option value="2. MTU 18V 2000 G62 S/N 539100415">2. MTU 18V 2000 G62 S/N 539100415</option>
+                        <option value="3. MTU 12V 2000 G62 S/N 535102284">3. MTU 12V 2000 G62 S/N 535102284</option>
+                        <option value="4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728">4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728</option>
+                    </select>
+                </div>
+                <div class="formField">
+                    <label class="fieldLabel" for="foto">Upload Foto*</label>
+                    <div class="uploadField">
+                        <input class="fileInput" type="file" id="foto" name="foto" accept="image/*" required>
+                    </div>
+                </div>
+                <button class="btnSubmit" type="submit" id="submit">Submit</button>
+            </form>
+        </div>
+        <div class="tableArea">
+            <div class="tableHeadline">
+                <label class="tableLable">Laporan Adanya Gangguan</label>
+                <button class="btnExport" id="exportTable" onclick="exportTables()">Export Data</button>
+            </div>
+            <div class="labeledTable">
+                <!-- Table content -->
+            </div>
+        </div>
+        <div class="user-info">
+            <p>Welcome, <span id="username"></span>!</p>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <script>
+        function navigateToJKM(){
+            window.location.href = "./jkm_harian.html";
+        }
+        function navigateToHome(){
+            window.location.href = "./index.html";
+        }
+        function setActiveTab() {
+            const url = window.location.pathname;
+            document.querySelectorAll('.tabButton').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            if (url.includes('jkm_harian.html')) {
+                document.getElementById('jkmButton').classList.add('active');
+            } else if (url.includes('temuan_gangguan.html')) {
+                document.getElementById('gangguanButton').classList.add('active');
+            }
+        }
+        window.onload = setActiveTab;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/user')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('username').textContent = data.username;
+                })
+                .catch(error => console.error('Error fetching user data:', error));
+        });
+    </script>
+</body>
+</html>
