@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const axios = require('axios');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
@@ -177,22 +178,61 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// Temuan Gangguan CRUD
-app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
+async function uploadImageToImgur(imageBase64) {
   try {
-    const data = new GangguanData({
-      ...req.body,
-      user: req.user._id,
-      foto: {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
+      const response = await axios.post('https://api.imgur.com/3/upload', {
+          image: imageBase64,
+          type: 'base64',
+      }, {
+          headers: {
+              Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`
+          }
+      });
+
+      return response.data.data.link; // Return the Imgur URL of the uploaded image
+  } catch (error) {
+      console.error('Error uploading image to Imgur:', error);
+      throw new Error('Error uploading image to Imgur');
+  }
+}
+
+// Temuan Gangguan CRUD
+// app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
+//   try {
+//     const data = new GangguanData({
+//       ...req.body,
+//       user: req.user._id,
+//       foto: {
+//         data: req.file.buffer,
+//         contentType: req.file.mimetype,
+//       }
+//     });
+//     await data.save();
+//     res.status(201).json(data); // Return the saved data
+//   } catch (err) {
+//     console.error('Error saving data:', err);
+//     res.status(400).json({ message: 'Error saving data', error: err.message });
+//   }
+// });
+
+app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
+  try {
+      let imageUrl = '';
+      if (req.body.foto) {
+          const base64Image = req.body.foto.split(';base64,').pop();
+          imageUrl = await uploadImageToImgur(base64Image);
       }
-    });
-    await data.save();
-    res.status(201).json(data); // Return the saved data
+
+      const data = new GangguanData({
+          ...req.body,
+          user: req.user._id,
+          foto: imageUrl,
+      });
+      await data.save();
+      res.status(201).json(data); // Return the saved data
   } catch (err) {
-    console.error('Error saving data:', err);
-    res.status(400).json({ message: 'Error saving data', error: err.message });
+      console.error('Error saving data:', err);
+      res.status(400).json({ message: 'Error saving data', error: err.message });
   }
 });
 

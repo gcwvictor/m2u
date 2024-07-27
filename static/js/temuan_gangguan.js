@@ -39,29 +39,68 @@ document.addEventListener('DOMContentLoaded', () => {
     displayTableData();
 });
 
+// async function handleSubmit(event) {
+//     event.preventDefault();
+
+//     const formData = new FormData(event.target);
+
+//     try {
+//         const response = await fetch('/saveGangguanData', {
+//             method: 'POST',
+//             body: formData,
+//         });
+
+//         if (response.ok) {
+//             alert('Data saved successfully');
+//             displayTableData(); // Refresh the table data after saving
+//         } else {
+//             const errorData = await response.json();
+//             alert(`Error saving data: ${errorData.message}`);
+//         }
+//     } catch (error) {
+//         alert('Error: ' + error.message);
+//     }
+
+//     event.target.reset();
+// }
+
 async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
 
-    try {
-        const response = await fetch('/saveGangguanData', {
-            method: 'POST',
-            body: formData,
+    const file = formData.get('foto');
+    if (file) {
+        resizeImage(file, 800, 600, async (base64Image) => {
+            data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
+
+            try {
+                const response = await fetch('/saveGangguanData', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Data saved successfully');
+                    displayTableData(); // Refresh the table data after saving
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error saving data: ${errorData.message}`);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+
+            event.target.reset();
         });
-
-        if (response.ok) {
-            alert('Data saved successfully');
-            displayTableData(); // Refresh the table data after saving
-        } else {
-            const errorData = await response.json();
-            alert(`Error saving data: ${errorData.message}`);
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
     }
-
-    event.target.reset();
 }
 
 async function displayTableData() {
@@ -151,7 +190,7 @@ async function exportTableData() {
             'Tanggal': item.tanggal,
             'Keterangan': item.nama_gangguan,
             'Unit Mesin': item.unit_mesin,
-            'Foto': item.foto ? `data:${item.foto.contentType};base64,${item.foto.data}` : 'No Image'
+            'Foto': item.foto ? `Link: ${item.foto}` : 'No Image'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
