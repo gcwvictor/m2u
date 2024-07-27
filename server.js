@@ -198,13 +198,20 @@ app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async 
 
 app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
   try {
-    const results = await GangguanData.find({ user: req.user._id });
-    res.status(200).json(results);
+      const results = await GangguanData.find({ user: req.user._id });
+      res.status(200).json(results.map(item => ({
+          ...item.toObject(),
+          foto: item.foto ? {
+              contentType: item.foto.contentType,
+              data: item.foto.data.toString('base64')
+          } : null
+      })));
   } catch (err) {
-    console.error('Error fetching data:', err);
-    res.status(400).json({ message: 'Error fetching data', error: err.message });
+      console.error('Error fetching data:', err);
+      res.status(400).json({ message: 'Error fetching data', error: err.message });
   }
 });
+
 
 app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
   try {

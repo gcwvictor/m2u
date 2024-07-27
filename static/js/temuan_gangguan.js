@@ -97,7 +97,7 @@ async function displayTableData() {
             const fotoCell = document.createElement('td');
             if (item.foto && item.foto.data) {
                 const img = document.createElement('img');
-                img.src = `data:${item.foto.contentType};base64,${item.foto.data.toString('base64')}`;
+                img.src = `data:${item.foto.contentType};base64,${item.foto.data}`;
                 img.width = 100;
                 img.height = 60;
                 fotoCell.appendChild(img);
@@ -151,7 +151,7 @@ async function exportTableData() {
             'Tanggal': item.tanggal,
             'Keterangan': item.nama_gangguan,
             'Unit Mesin': item.unit_mesin,
-            'Foto': item.foto ? `Link: ${item.foto}` : 'No Image'
+            'Foto': item.foto ? `data:${item.foto.contentType};base64,${item.foto.data}` : 'No Image'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
@@ -159,7 +159,7 @@ async function exportTableData() {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
         XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
     } catch (error) {
-        console.error('Error exporting data: ', error);
+        console.error('Error exporting data:', error);
     }
 }
 
