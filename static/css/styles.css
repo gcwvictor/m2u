@@ -1,7 +1,7 @@
-@font-face {font-family: Inter-Regular; src: url(/assets/fonts/Inter-Regular.woff2) format(woff2);}
-@font-face {font-family: Inter-Medium; src: url(/assets/fonts/Inter-Medium.woff2) format(woff2);}
-@font-face {font-family: Inter-Semibold; src: url(/assets/fonts/Inter-SemiBold.woff2) format(woff2);}
-@font-face {font-family: Inter-Bold; src: url(/assets/fonts/Inter-Bold.woff2) format(woff2);}
+@font-face {font-family: Inter-Regular; src: url(../../assets/fonts/Inter-Regular.woff2) format(woff2);}
+@font-face {font-family: Inter-Medium; src: url(../../assets/fonts/Inter-Medium.woff2) format(woff2);}
+@font-face {font-family: Inter-Semibold; src: url(../../assets/fonts/Inter-SemiBold.woff2) format(woff2);}
+@font-face {font-family: Inter-Bold; src: url(../../assets/fonts/Inter-Bold.woff2) format(woff2);}
 
 :root {
   /* Colors */
