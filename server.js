@@ -62,7 +62,7 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Session management
 app.use(session({
-  secret: 'secret', // Make sure to replace 'your_secret_key' with a strong secret key
+  secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
 }));
@@ -117,7 +117,7 @@ function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect('/login.html');
+  res.redirect('/');
 }
 
 // Endpoints
@@ -128,7 +128,7 @@ app.post('/register', async (req, res) => {
   const user = new User({ username, password: hashedPassword });
   try {
     await user.save();
-    res.redirect('/login.html');
+    res.redirect('/');
   } catch (err) {
     res.status(400).send('Error registering user');
   }
@@ -136,15 +136,15 @@ app.post('/register', async (req, res) => {
 
 // User login
 app.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login.html',
+  successRedirect: '/menu.html',
+  failureRedirect: '/',
   failureFlash: false
 }));
 
 // User logout
 app.get('/logout', (req, res) => {
   req.logout();
-  res.redirect('/login.html');
+  res.redirect('/');
 });
 
 // JKM Harian CRUD
@@ -212,6 +212,27 @@ app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
 // Endpoint to get user info
 app.get('/user', ensureAuthenticated, (req, res) => {
   res.json({ username: req.user.username });
+});
+
+// Serve HTML pages
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+app.get('/register.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'register.html'));
+});
+
+app.get('/menu.html', ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'menu.html'));
+});
+
+app.get('/jkm_harian.html', ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'jkm_harian.html'));
+});
+
+app.get('/temuan_gangguan.html', ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'temuan_gangguan.html'));
 });
 
 app.listen(port, () => {
