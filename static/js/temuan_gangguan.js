@@ -159,7 +159,7 @@ async function exportTableData() {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
         XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
     } catch (error) {
-        console.error('Error exporting data: ', error);
+        console.error('Error exporting data:', error);
     }
 }
 

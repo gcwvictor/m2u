@@ -189,7 +189,6 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // Temuan Gangguan CRUD
-// Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   const data = new GangguanData({
     ...req.body,
