@@ -10,6 +10,10 @@ function navigateToJKM() {
     window.location.href = "./jkm_harian.html";
 }
 
+function navigateToLogout() {
+    window.location.href = "/logout";
+}
+
 function setActiveTab() {
     const url = window.location.pathname;
     document.querySelectorAll('.tabButton').forEach(button => {
@@ -26,8 +30,11 @@ function setActiveTab() {
 window.onload = setActiveTab;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const unitMesinDropdown = document.getElementById('unit_mesin_dropdown');
+    if (unitMesinDropdown) {
+        unitMesinDropdown.addEventListener('change', loadFromDatabase);
+    }
     loadFromDatabase();
-    document.getElementById('unit_mesin_dropdown').addEventListener('change', loadFromDatabase);
 });
 
 function handleDateChange(event) {
@@ -51,7 +58,6 @@ function handleDateChange(event) {
         jumlahJKMHarianField.value = '';
         jsmoField.value = '';
         jsbField.value = '';
-
     } else {
         jumlahJKMHarianField.required = false;
         jsmoField.required = false;
@@ -87,7 +93,54 @@ async function getPreviousDayData(date, unitMesin) {
     return data.length > 0 ? data[0] : null;
 }
 
-// Add these function definitions
+function isFirstOfMonth(date) {
+    const d = new Date(date);
+    return d.getDate() === 1;
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData);
+
+    if (!validateDate(data.tanggal)) {
+        alert('Tanggal harus diisi dengan benar!');
+        return;
+    }
+
+    if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
+        return;
+    }
+
+    if (!isFirstOfMonth(data.tanggal)) {
+        data.jumlah_jkm_har = await calculateJumlahJKMHarian(data.tanggal, data.unit_mesin);
+        data.jsmo = await calculateJSMO(data.tanggal, data.unit_mesin);
+        data.jsb = await calculateJSB(data.tanggal, data.unit_mesin);
+    }
+
+    try {
+        const response = await fetch('/saveJkmData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            alert('Data saved successfully');
+            displayTableData(data.unit_mesin); // Refresh the table data after saving
+        } else {
+            alert('Error saving data');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+
+    event.target.reset();
+}
+
 function validateDate(date) {
     const selectedDate = new Date(date);
     return selectedDate instanceof Date && !isNaN(selectedDate);
@@ -154,58 +207,6 @@ async function loadFromDatabase() {
     displayTableData(unit_mesin);
 }
 
-// Modify the event listeners and checks for null
-document.addEventListener('DOMContentLoaded', () => {
-    loadFromDatabase();
-    const dropdown = document.getElementById('unit_mesin_dropdown');
-    if (dropdown) {
-        dropdown.addEventListener('change', loadFromDatabase);
-    }
-});
-
-async function handleSubmit(event) {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
-
-    if (!validateDate(data.tanggal)) {
-        alert('Tanggal harus diisi dengan benar!');
-        return;
-    }
-
-    if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
-        return;
-    }
-
-    if (!isFirstOfMonth(data.tanggal)) {
-        data.jumlah_jkm_har = await calculateJumlahJKMHarian(data.tanggal, data.unit_mesin);
-        data.jsmo = await calculateJSMO(data.tanggal, data.unit_mesin);
-        data.jsb = await calculateJSB(data.tanggal, data.unit_mesin);
-    }
-
-    try {
-        const response = await fetch('/saveJkmData', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            alert('Data saved successfully');
-            displayTableData(data.unit_mesin); // Refresh the table data after saving
-        } else {
-            alert('Error saving data');
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-
-    event.target.reset();
-}
-
 async function displayTableData(unit_mesin) {
     try {
         const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
@@ -257,7 +258,6 @@ async function displayTableData(unit_mesin) {
     }
 }
 
-
 async function deleteRow(id) {
     try {
         const response = await fetch(`/deleteJkmData/${id}`, {
@@ -266,8 +266,7 @@ async function deleteRow(id) {
 
         if (response.ok) {
             alert('Data deleted successfully');
-            const unit_mesin = document.querySelector('select[name="unit_mesin"]').value;
-            displayTableData(unit_mesin);
+            loadFromDatabase(); // Refresh the table data after deletion
         } else {
             alert('Error deleting data');
         }
@@ -282,7 +281,8 @@ document.getElementById('exportTable').addEventListener('click', function() {
 
 async function exportTableData() {
     try {
-        const response = await fetch('/getJkmData');
+        const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
         const data = await response.json();
 
         const exportData = data.map(item => ({

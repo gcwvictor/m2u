@@ -1,9 +1,13 @@
-function navigateToJKM(){
-    window.location.href = "../views/jkm_harian.html";
+function navigateToJKM() {
+    window.location.href = "./jkm_harian.html";
 }
 
-function navigateToHome(){
-    window.location.href = "../views/index.html";
+function navigateToHome() {
+    window.location.href = "./index.html";
+}
+
+function navigateToLogout() {
+    window.location.href = "/logout";
 }
 
 function setActiveTab() {
@@ -38,7 +42,7 @@ async function handleSubmit(event) {
 
         if (response.ok) {
             alert('Data saved successfully');
-            displayTableData();
+            displayTableData(); // Refresh the table data after saving
         } else {
             const errorData = await response.json();
             alert(`Error saving data: ${errorData.message}`);
@@ -109,7 +113,7 @@ async function deleteRow(id) {
 
         if (response.ok) {
             alert('Data deleted successfully');
-            displayTableData();
+            displayTableData(); // Refresh the table data after deletion
         } else {
             alert('Error deleting data');
         }
@@ -137,7 +141,7 @@ async function exportTableData() {
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
-        XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
+        XLSX.writeFile(workbook, 'Temuan_Gangguan.xlsx');
     } catch (error) {
         console.error('Error exporting data: ', error);
     }
