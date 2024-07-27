@@ -101,7 +101,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Set up multer for file uploads
+// Set up multer for file uploads with size limits
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -111,7 +111,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB file size limit
+}).single('foto');
 
 // Authentication middleware
 function ensureAuthenticated(req, res, next) {
@@ -186,19 +189,29 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// Temuan Gangguan CRUD
-app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
-  const data = new GangguanData({
-    ...req.body,
-    user: req.user._id,
-    foto: req.file ? req.file.path : '',
+// Endpoints
+app.post('/saveGangguanData', ensureAuthenticated, (req, res) => {
+  upload(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(500).send({ message: 'File upload error' });
+    } else if (err) {
+      return res.status(500).send({ message: err.message });
+    }
+
+    const data = new GangguanData({
+      ...req.body,
+      user: req.user._id,
+      foto: req.file ? `/uploads/${req.file.filename}` : '',
+    });
+
+    try {
+      await data.save();
+      res.status(201).send('Data added...');
+    } catch (err) {
+      console.error(err);
+      res.status(400).send('Error saving data');
+    }
   });
-  try {
-    await data.save();
-    res.status(201).send('Data added...');
-  } catch (err) {
-    res.status(400).send('Error saving data');
-  }
 });
 
 app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
@@ -206,6 +219,7 @@ app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
     const results = await GangguanData.find({ user: req.user._id });
     res.status(200).send(results);
   } catch (err) {
+    console.error(err);
     res.status(400).send('Error fetching data');
   }
 });
@@ -215,6 +229,7 @@ app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
     await GangguanData.findByIdAndDelete(req.params.id);
     res.status(200).send('Data deleted');
   } catch (err) {
+    console.error(err);
     res.status(400).send('Error deleting data');
   }
 });

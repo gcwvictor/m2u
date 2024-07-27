@@ -39,7 +39,8 @@ async function handleSubmit(event) {
             alert('Data saved successfully');
             displayTableData();
         } else {
-            alert('Error saving data');
+            const errorData = await response.json();
+            alert(`Error saving data: ${errorData.message}`);
         }
     } catch (error) {
         alert('Error: ' + error.message);
