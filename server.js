@@ -54,8 +54,8 @@ const JkmData = mongoose.models.JkmData || mongoose.model('JkmData', jkmSchema);
 const GangguanData = mongoose.models.GangguanData || mongoose.model('GangguanData', gangguanSchema);
 
 // Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({ limit: '16mb', extended: true })); // Increase payload limit
+app.use(bodyParser.urlencoded({ limit: '16mb', extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
