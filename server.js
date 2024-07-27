@@ -102,6 +102,10 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+// Set up multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 // Authentication middleware
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
