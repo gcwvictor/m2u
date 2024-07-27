@@ -17,6 +17,7 @@ const port = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify:false
 }).then(() => {
   console.log('MongoDB connected...');
 }).catch((err) => {
@@ -54,7 +55,7 @@ const JkmData = mongoose.models.JkmData || mongoose.model('JkmData', jkmSchema);
 const GangguanData = mongoose.models.GangguanData || mongoose.model('GangguanData', gangguanSchema);
 
 // Middleware
-app.use(bodyParser.json({ limit: '16mb', extended: true })); // Increase payload limit
+app.use(bodyParser.json({ limit: '16mb', extended: true })); 
 app.use(bodyParser.urlencoded({ limit: '16mb', extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -176,7 +177,7 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 // Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
   try {
-    const base64Image = await convert(req.body.foto);
+    const base64Image = await imageConverter(req.body.foto);
     const data = new GangguanData({
       ...req.body,
       user: req.user._id,
