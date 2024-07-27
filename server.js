@@ -1,13 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const MongoStore = require('connect-mongo');
+const imageConverter = require('mongo-image-converter');
 require('dotenv').config();
 
 const app = express();
@@ -102,21 +102,6 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// Set up multer for file uploads with size limits
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB file size limit
-});
-
 // Authentication middleware
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
@@ -189,13 +174,18 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // Temuan Gangguan CRUD
-app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
-  const data = new GangguanData({
-    ...req.body,
-    user: req.user._id,
-    foto: req.file ? req.file.path : '',
-  });
+app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
+  const { tanggal, nama_gangguan, unit_mesin, foto } = req.body;
+
   try {
+    const convertedImage = await imageConverter.convert(foto);
+    const data = new GangguanData({
+      user: req.user._id,
+      tanggal,
+      nama_gangguan,
+      unit_mesin,
+      foto: convertedImage,
+    });
     await data.save();
     res.status(201).json(data); // Return the saved data
   } catch (err) {

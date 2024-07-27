@@ -1,8 +1,8 @@
-function navigateToJKM(){
+function navigateToJKM() {
     window.location.href = "./jkm_harian.html";
 }
 
-function navigateToHome(){
+function navigateToHome() {
     window.location.href = "./menu.html";
 }
 
@@ -43,25 +43,41 @@ async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
 
-    try {
-        const response = await fetch('/saveGangguanData', {
-            method: 'POST',
-            body: formData,
-        });
+    const file = formData.get('foto');
+    if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = async function () {
+            data.foto = reader.result;
 
-        if (response.ok) {
-            alert('Data saved successfully');
-            displayTableData(); // Refresh the table data after saving
-        } else {
-            const errorData = await response.json();
-            alert(`Error saving data: ${errorData.message}`);
+            try {
+                const response = await fetch('/saveGangguanData', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Data saved successfully');
+                    displayTableData(); // Refresh the table data after saving
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error saving data: ${errorData.message}`);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+
+            event.target.reset();
         }
-    } catch (error) {
-        alert('Error: ' + error.message);
     }
-
-    event.target.reset();
 }
 
 async function displayTableData() {
@@ -138,7 +154,7 @@ async function deleteRow(id) {
     }
 }
 
-document.getElementById('exportTable').addEventListener('click', function() {
+document.getElementById('exportTable').addEventListener('click', function () {
     exportTableData();
 });
 
