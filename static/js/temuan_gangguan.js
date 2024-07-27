@@ -143,8 +143,9 @@ async function uploadToImgur(base64Image) {
 async function displayTableData() {
     try {
         const response = await fetch('/getGangguanData');
+        const errorData = await response.json();
+        
         if (!response.ok) {
-            const errorData = await response.json();
             console.error(`Error fetching data: ${errorData.message}`);
             console.error('Response status:', response.status);
             console.error('Response status text:', response.statusText);
@@ -176,7 +177,7 @@ async function displayTableData() {
             const fotoCell = document.createElement('td');
             if (item.foto) {
                 const img = document.createElement('img');
-                img.src = item.foto;
+                img.src = `data:${item.foto.contentType};base64,${item.foto.data}`;
                 img.width = 100;
                 img.height = 60;
                 fotoCell.appendChild(img);
