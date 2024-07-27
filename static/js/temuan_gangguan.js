@@ -76,9 +76,10 @@ async function handleSubmit(event) {
             }
 
             event.target.reset();
-        }
+        };
     }
 }
+
 
 async function displayTableData() {
     try {

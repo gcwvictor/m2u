@@ -175,16 +175,12 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 
 // Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
-  const { tanggal, nama_gangguan, unit_mesin, foto } = req.body;
-
   try {
-    const convertedImage = await imageConverter.convert(foto);
+    const base64Image = await convert(req.body.foto);
     const data = new GangguanData({
+      ...req.body,
       user: req.user._id,
-      tanggal,
-      nama_gangguan,
-      unit_mesin,
-      foto: convertedImage,
+      foto: base64Image,
     });
     await data.save();
     res.status(201).json(data); // Return the saved data
