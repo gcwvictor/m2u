@@ -189,18 +189,19 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // Temuan Gangguan CRUD
+// Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   const data = new GangguanData({
-      ...req.body,
-      user: req.user._id,
-      foto: req.file ? req.file.path : '',
+    ...req.body,
+    user: req.user._id,
+    foto: req.file ? req.file.path : '',
   });
   try {
-      await data.save();
-      res.status(201).json(data); // Return the saved data
+    await data.save();
+    res.status(201).json(data); // Return the saved data
   } catch (err) {
-      console.error(err);
-      res.status(400).json({ message: 'Error saving data' });
+    console.error('Error saving data:', err);
+    res.status(400).json({ message: 'Error saving data', error: err.message });
   }
 });
 
@@ -209,8 +210,8 @@ app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
     const results = await GangguanData.find({ user: req.user._id });
     res.status(200).json(results);
   } catch (err) {
-    console.error(err);
-    res.status(400).send('Error fetching data');
+    console.error('Error fetching data:', err);
+    res.status(400).json({ message: 'Error fetching data', error: err.message });
   }
 });
 

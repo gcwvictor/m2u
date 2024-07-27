@@ -67,6 +67,12 @@ async function handleSubmit(event) {
 async function displayTableData() {
     try {
         const response = await fetch('/getGangguanData');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error(`Error fetching data: ${errorData.message}`);
+            return;
+        }
+
         const data = await response.json();
         const tableBody = document.querySelector('#table1 tbody');
         tableBody.innerHTML = '';
