@@ -306,10 +306,10 @@ document.getElementById('exportTable').addEventListener('click', function() {
 async function exportTableData() {
     try {
         const unitMesins = [
-            { id: 1, name: 'DEUTZ MWM TBD 616 V12 G3 S/N 2205106' },
-            { id: 2, name: 'MTU 18V 2000 G62 S/N 539100415' },
-            { id: 3, name: 'MTU 12V 2000 G62 S/N 535102284' },
-            { id: 4, name: 'DEUTZ MWM TBD 616 V12 G3 S/N 2204728' }
+            { id: 1, name: 'DEUTZ MWM 616 V12 G3' },
+            { id: 2, name: 'MTU 18V 2000 G62' },
+            { id: 3, name: 'MTU 12V 2000 G62' },
+            { id: 4, name: 'DEUTZ MWM 616 V12 G3' }
         ];
 
         const workbook = XLSX.utils.book_new();
@@ -340,4 +340,9 @@ async function exportTableData() {
 document.addEventListener('DOMContentLoaded', () => {
     const unit_mesin = document.querySelector('select[name="unit_mesin"]').value;
     displayTableData(unit_mesin);
+
+    const exportButton = document.querySelector('.btnExport');
+    if (exportButton) {
+        exportButton.addEventListener('click', exportAllData);
+    }
 });
