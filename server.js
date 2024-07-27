@@ -14,10 +14,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
+mongoose.connect(process.env.MONGODB_URI, {}).then(() => {
   console.log('MongoDB connected...');
 }).catch((err) => {
   console.error('MongoDB connection error:', err);
@@ -115,7 +112,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB file size limit
-}).single('foto');
+});
 
 // Authentication middleware
 function ensureAuthenticated(req, res, next) {
@@ -188,8 +185,6 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
-
-// Endpoints
 // Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   const data = new GangguanData({
@@ -225,7 +220,6 @@ app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
     res.status(400).send('Error deleting data');
   }
 });
-
 
 // Endpoint to get user info
 app.get('/user', ensureAuthenticated, (req, res) => {
