@@ -119,7 +119,7 @@ async function handleSubmit(event) {
 
         if (response.ok) {
             alert('Data saved successfully');
-            displayTableData(data.unit_mesin); // Refresh the table data after saving
+            displayTableData(data.unit_mesin);
         } else {
             alert('Error saving data');
         }
@@ -134,7 +134,7 @@ async function displayTableData(unit_mesin) {
     try {
         const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
         const data = await response.json();
-        const tableBody = document.querySelector('#table tbody');
+        const tableBody = document.querySelector('#dataTable tbody');
         tableBody.innerHTML = '';
 
         data.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
@@ -189,7 +189,8 @@ async function deleteRow(id) {
 
         if (response.ok) {
             alert('Data deleted successfully');
-            displayTableData(); // Refresh the table data after deletion
+            const unit_mesin = document.querySelector('select[name="unit_mesin"]').value;
+            displayTableData(unit_mesin);
         } else {
             alert('Error deleting data');
         }

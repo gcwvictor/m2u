@@ -3,21 +3,22 @@ function navigateToJKM(){
 }
 
 function navigateToHome(){
-      window.location.href = "../views/index.html";
+    window.location.href = "../views/index.html";
 }
+
 function setActiveTab() {
     const url = window.location.pathname;
     document.querySelectorAll('.tabButton').forEach(button => {
         button.classList.remove('active');
-        });
-  
-        if (url.includes('jkm_harian.html')) {
+    });
+
+    if (url.includes('jkm_harian.html')) {
         document.getElementById('jkmButton').classList.add('active');
-        } else if (url.includes('temuan_gangguan.html')) {
+    } else if (url.includes('temuan_gangguan.html')) {
         document.getElementById('gangguanButton').classList.add('active');
-        }
-    
+    }
 }
+
 window.onload = setActiveTab;
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -37,7 +38,7 @@ async function handleSubmit(event) {
 
         if (response.ok) {
             alert('Data saved successfully');
-            displayTableData(); // Refresh the table data after saving
+            displayTableData();
         } else {
             const errorData = await response.json();
             alert(`Error saving data: ${errorData.message}`);
@@ -108,7 +109,7 @@ async function deleteRow(id) {
 
         if (response.ok) {
             alert('Data deleted successfully');
-            displayTableData(); // Refresh the table data after deletion
+            displayTableData();
         } else {
             alert('Error deleting data');
         }
@@ -143,5 +144,3 @@ async function exportTableData() {
 }
 
 document.addEventListener('DOMContentLoaded', displayTableData);
-
-
