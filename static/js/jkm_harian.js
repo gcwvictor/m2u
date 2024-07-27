@@ -306,10 +306,10 @@ document.getElementById('exportTable').addEventListener('click', function() {
 async function exportTableData() {
     try {
         const unitMesins = [
-            { id: 1, name: 'DEUTZ MWM 616 V12 G3 - 220510' },
+            { id: 1, name: 'DEUTZ MWM 616 - 220510' },
             { id: 2, name: 'MTU 18V 2000 G62' },
             { id: 3, name: 'MTU 12V 2000 G62' },
-            { id: 4, name: 'DEUTZ MWM 616 V12 G3 - 2204728' }
+            { id: 4, name: 'DEUTZ MWM 616 - 2204728' }
         ];
 
         const workbook = XLSX.utils.book_new();
