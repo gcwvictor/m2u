@@ -39,31 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     displayTableData();
 });
 
-// async function handleSubmit(event) {
-//     event.preventDefault();
-
-//     const formData = new FormData(event.target);
-
-//     try {
-//         const response = await fetch('/saveGangguanData', {
-//             method: 'POST',
-//             body: formData,
-//         });
-
-//         if (response.ok) {
-//             alert('Data saved successfully');
-//             displayTableData(); // Refresh the table data after saving
-//         } else {
-//             const errorData = await response.json();
-//             alert(`Error saving data: ${errorData.message}`);
-//         }
-//     } catch (error) {
-//         alert('Error: ' + error.message);
-//     }
-
-//     event.target.reset();
-// }
-
 async function handleSubmit(event) {
     event.preventDefault();
 
@@ -150,6 +125,8 @@ async function displayTableData() {
         }
 
         const data = await response.json();
+        console.log('Fetched data:', data);  // Log the fetched data for debugging
+
         const tableBody = document.querySelector('#table1 tbody');
         tableBody.innerHTML = '';
 
@@ -227,7 +204,7 @@ async function exportTableData() {
             'Tanggal': item.tanggal,
             'Keterangan': item.nama_gangguan,
             'Unit Mesin': item.unit_mesin,
-            'Foto': item.foto ? `Link: ${item.foto}` : 'No Image'
+            'Foto': item.foto ? `data:${item.foto.contentType};base64,${item.foto.data}` : 'No Image'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
