@@ -1,13 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const MongoStore = require('connect-mongo');
-const imageConverter = require('mongo-image-converter');
 require('dotenv').config();
 
 const app = express();
@@ -45,7 +45,7 @@ const gangguanSchema = new mongoose.Schema({
   tanggal: String,
   nama_gangguan: String,
   unit_mesin: String,
-  foto: String,
+  foto: { data: Buffer, contentType: String },
 });
 
 // Check if models already exist to prevent OverwriteModelError
@@ -174,13 +174,15 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // Temuan Gangguan CRUD
-app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
+app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   try {
-    const base64Image = await imageConverter(req.body.foto);
     const data = new GangguanData({
       ...req.body,
       user: req.user._id,
-      foto: base64Image,
+      foto: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+      }
     });
     await data.save();
     res.status(201).json(data); // Return the saved data

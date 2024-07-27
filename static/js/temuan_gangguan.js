@@ -43,76 +43,25 @@ async function handleSubmit(event) {
     event.preventDefault();
 
     const formData = new FormData(event.target);
-    const data = {};
-    formData.forEach((value, key) => {
-        data[key] = value;
-    });
 
-    const file = formData.get('foto');
-    if (file) {
-        resizeImage(file, 800, 600, async (base64Image) => {
-            data.foto = base64Image;
-
-            try {
-                const response = await fetch('/saveGangguanData', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert('Data saved successfully');
-                    displayTableData(); // Refresh the table data after saving
-                } else {
-                    const errorData = await response.json();
-                    alert(`Error saving data: ${errorData.message}`);
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-
-            event.target.reset();
+    try {
+        const response = await fetch('/saveGangguanData', {
+            method: 'POST',
+            body: formData,
         });
-    }
-}
 
-function resizeImage(file, maxWidth, maxHeight, callback) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > maxWidth) {
-                    height *= maxWidth / width;
-                    width = maxWidth;
-                }
-            } else {
-                if (height > maxHeight) {
-                    width *= maxHeight / height;
-                    height = maxHeight;
-                }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const dataUrl = canvas.toDataURL('image/jpeg');
-            callback(dataUrl);
+        if (response.ok) {
+            alert('Data saved successfully');
+            displayTableData(); // Refresh the table data after saving
+        } else {
+            const errorData = await response.json();
+            alert(`Error saving data: ${errorData.message}`);
         }
+    } catch (error) {
+        alert('Error: ' + error.message);
     }
+
+    event.target.reset();
 }
 
 async function displayTableData() {
@@ -146,9 +95,9 @@ async function displayTableData() {
             row.appendChild(unitMesinCell);
 
             const fotoCell = document.createElement('td');
-            if (item.foto) {
+            if (item.foto && item.foto.data) {
                 const img = document.createElement('img');
-                img.src = item.foto;
+                img.src = `data:${item.foto.contentType};base64,${item.foto.data.toString('base64')}`;
                 img.width = 100;
                 img.height = 60;
                 fotoCell.appendChild(img);
@@ -210,7 +159,7 @@ async function exportTableData() {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
         XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
     } catch (error) {
-        console.error('Error exporting data:', error);
+        console.error('Error exporting data: ', error);
     }
 }
 
