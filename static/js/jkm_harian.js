@@ -89,10 +89,10 @@ async function handleSubmit(event) {
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
     const tableId = `table${data.unit_mesin}`;
-    const table = document.getElementById(tableId).querySelector('tbody');
+    const table = document.getElementById(tableId)?.querySelector('tbody');
     const newRow = document.createElement('tr');
 
-    if (!validateSequentialDates(data.tanggal, data.unit_mesin)) {
+    if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
         return;
     }
 
@@ -206,6 +206,8 @@ async function loadFromDatabase() {
 }
 
 function addRowToTable(table, data) {
+    if (!table) return;
+
     const newRow = document.createElement('tr');
     const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
 
@@ -251,4 +253,4 @@ function exportTables() {
     XLSX.writeFile(wb, 'JKM Harian.xlsx');
 }
 
-document.addEventListener('DOMContentLoaded', loadFromLocalStorage);
+document.addEventListener('DOMContentLoaded', loadFromDatabase);

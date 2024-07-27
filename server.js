@@ -157,16 +157,21 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   const data = new JkmData({ ...req.body, user: req.user._id });
   try {
     await data.save();
-    res.status(201).send('Data added...');
+    res.status(201).json(data);
   } catch (err) {
     res.status(400).send('Error saving data');
   }
 });
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
+  const { unit_mesin, tanggal } = req.query;
   try {
-    const results = await JkmData.find({ user: req.user._id });
-    res.status(200).send(results);
+    const query = { user: req.user._id, unit_mesin };
+    if (tanggal) {
+      query.tanggal = tanggal;
+    }
+    const results = await JkmData.find(query);
+    res.status(200).json(results);
   } catch (err) {
     res.status(400).send('Error fetching data');
   }
@@ -221,7 +226,11 @@ app.get('/user', ensureAuthenticated, (req, res) => {
 
 // Serve HTML pages
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+  if (req.isAuthenticated()) {
+    res.redirect('/menu.html');
+  } else {
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
+  }
 });
 
 app.get('/register.html', (req, res) => {
