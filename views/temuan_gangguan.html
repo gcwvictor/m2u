@@ -22,6 +22,9 @@
                 <button class="tabButton" id="gangguanButton" onclick="navigateToGangguan()">
                     <i class="fa-xl fa-solid fa-bug"></i>
                 </button>
+                <button class="tabButton" onclick="navigateToLogout()">
+                    <i class="fa-xl fa-solid fa-door-closed"></i>
+                </button>
             </div>
         </div>
         <div class="formArea">
@@ -62,10 +65,10 @@
                 <!-- Table content -->
             </div>
         </div>
-        <div class="user-info">
+        <!-- <div class="user-info">
             <p>Welcome, <span id="username"></span>!</p>
             <a href="/logout">Logout</a>
-        </div>
+        </div> -->
     </div>
     <script>
         function navigateToJKM(){
@@ -73,6 +76,9 @@
         }
         function navigateToHome(){
             window.location.href = "./menu.html";
+        }
+        function navigateToLogout() {
+            window.location.href = "/logout";
         }
         function setActiveTab() {
             const url = window.location.pathname;
@@ -84,7 +90,7 @@
                 document.getElementById('jkmButton').classList.add('active');
             } else if (url.includes('temuan_gangguan.html')) {
                 document.getElementById('gangguanButton').classList.add('active');
-            }
+            } 
         }
         window.onload = setActiveTab;
 

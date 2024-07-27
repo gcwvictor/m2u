@@ -22,6 +22,9 @@
                 <button class="tabButton" id="gangguanButton" onclick="navigateToGangguan()">
                     <i class="fa-xl fa-solid fa-bug"></i>
                 </button>
+                <button class="tabButton" onclick="navigateToLogout()">
+                    <i class="fa-xl fa-solid fa-door-closed"></i>
+                </button>
             </div>
         </div>
         <div class="formArea">
@@ -91,10 +94,10 @@
                 </table>
             </div>
         </div>
-        <div class="user-info">
+        <!-- <div class="user-info">
             <p>Welcome, <span id="username"></span>!</p>
-            <a href="/logout">Logout</a>
-        </div>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div> -->
     </div>
     <script>
         function navigateToMenu(){
@@ -102,6 +105,9 @@
         }
         function navigateToGangguan(){
             window.location.href = "./temuan_gangguan.html";
+        }
+        function navigateToLogout() {
+            window.location.href = "/logout";
         }
         function setActiveTab() {
             const url = window.location.pathname;
