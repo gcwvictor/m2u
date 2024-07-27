@@ -50,10 +50,8 @@ async function handleSubmit(event) {
 
     const file = formData.get('foto');
     if (file) {
-        const base64Image = await toBase64(file);
-        const imgurUrl = await uploadToImgur(base64Image);
-        if (imgurUrl) {
-            data.foto = imgurUrl;
+        resizeImage(file, 800, 600, async (base64Image) => {
+            data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
 
             try {
                 const response = await fetch('/saveGangguanData', {
@@ -76,33 +74,10 @@ async function handleSubmit(event) {
             }
 
             event.target.reset();
-        } else {
-            alert('Failed to upload image to Imgur.');
-        }
-    } else {
-        try {
-            const response = await fetch('/saveGangguanData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                alert('Data saved successfully');
-                displayTableData(); // Refresh the table data after saving
-            } else {
-                const errorData = await response.json();
-                alert(`Error saving data: ${errorData.message}`);
-            }
-        } catch (error) {
-            alert('Error: ' + error.message);
-        }
-
-        event.target.reset();
+        });
     }
 }
+
 
 function toBase64(file) {
     return new Promise((resolve, reject) => {
@@ -177,7 +152,7 @@ async function displayTableData() {
             const fotoCell = document.createElement('td');
             if (item.foto) {
                 const img = document.createElement('img');
-                img.src = `data:${item.foto.contentType};base64,${item.foto.data}`;
+                img.src = item.foto;
                 img.width = 100;
                 img.height = 60;
                 fotoCell.appendChild(img);
@@ -200,6 +175,8 @@ async function displayTableData() {
         console.error('Error fetching data:', error);
     }
 }
+
+document.addEventListener('DOMContentLoaded', displayTableData);
 
 async function deleteRow(id) {
     try {
@@ -242,5 +219,3 @@ async function exportTableData() {
         console.error('Error exporting data:', error);
     }
 }
-
-document.addEventListener('DOMContentLoaded', displayTableData);

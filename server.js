@@ -46,7 +46,7 @@ const gangguanSchema = new mongoose.Schema({
   tanggal: String,
   nama_gangguan: String,
   unit_mesin: String,
-  foto: { data: Buffer, contentType: String },
+  foto: String,
 });
 
 // Check if models already exist to prevent OverwriteModelError
@@ -196,54 +196,51 @@ async function uploadImageToImgur(imageBase64) {
   }
 }
 
-// Temuan Gangguan CRUD
-// app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
-//   try {
-//     const data = new GangguanData({
-//       ...req.body,
-//       user: req.user._id,
-//       foto: {
-//         data: req.file.buffer,
-//         contentType: req.file.mimetype,
-//       }
-//     });
-//     await data.save();
-//     res.status(201).json(data); // Return the saved data
-//   } catch (err) {
-//     console.error('Error saving data:', err);
-//     res.status(400).json({ message: 'Error saving data', error: err.message });
-//   }
-// });
+async function uploadImageToImgur(imageBase64) {
+  try {
+      const response = await axios.post('https://api.imgur.com/3/upload', {
+          image: imageBase64,
+          type: 'base64',
+      }, {
+          headers: {
+              Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`
+          }
+      });
+
+      return response.data.data.link; // Return the Imgur URL of the uploaded image
+  } catch (error) {
+      console.error('Error uploading image to Imgur:', error);
+      throw new Error('Error uploading image to Imgur');
+  }
+}
+
+app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
+  try {
+      let imageUrl = '';
+      if (req.body.foto) {
+          const base64Image = req.body.foto;
+          imageUrl = await uploadImageToImgur(base64Image);
+      }
+
+      const data = new GangguanData({
+          ...req.body,
+          user: req.user._id,
+          foto: imageUrl,
+      });
+      await data.save();
+      res.status(201).json(data); // Return the saved data
+  } catch (err) {
+      console.error('Error saving data:', err);
+      res.status(400).json({ message: 'Error saving data', error: err.message });
+  }
+});
 
 app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
   try {
       console.log('Fetching gangguan data for user:', req.user._id);
       const results = await GangguanData.find({ user: req.user._id });
       console.log('Gangguan data fetched:', results);
-
-      res.status(200).json(results.map(item => ({
-          ...item.toObject(),
-          foto: item.foto ? {
-              contentType: item.foto.contentType,
-              data: item.foto.data.toString('base64')
-          } : null
-      })));
-  } catch (err) {
-      console.error('Error fetching data:', err);
-      res.status(400).json({ message: 'Error fetching data', error: err.message });
-  }
-});
-
-app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
-  try {
-      const results = await GangguanData.find({ user: req.user._id });
-      res.status(200).json(results.map(item => ({
-          ...item.toObject(),
-          foto: item.foto ? {
-              contentType: item.foto.contentType,
-              data: item.foto.data.toString('base64')
-          } : null
-      })));
+      res.status(200).json(results);
   } catch (err) {
       console.error('Error fetching data:', err);
       res.status(400).json({ message: 'Error fetching data', error: err.message });
