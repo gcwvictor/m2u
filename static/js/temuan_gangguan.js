@@ -50,8 +50,10 @@ async function handleSubmit(event) {
 
     const file = formData.get('foto');
     if (file) {
-        resizeImage(file, 800, 600, async (base64Image) => {
-            data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
+        const base64Image = await toBase64(file);
+        const imgurUrl = await uploadToImgur(base64Image);
+        if (imgurUrl) {
+            data.foto = imgurUrl;
 
             try {
                 const response = await fetch('/saveGangguanData', {
@@ -74,44 +76,62 @@ async function handleSubmit(event) {
             }
 
             event.target.reset();
-        });
+        } else {
+            alert('Failed to upload image to Imgur.');
+        }
+    } else {
+        try {
+            const response = await fetch('/saveGangguanData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Data saved successfully');
+                displayTableData(); // Refresh the table data after saving
+            } else {
+                const errorData = await response.json();
+                alert(`Error saving data: ${errorData.message}`);
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+
+        event.target.reset();
     }
 }
 
-function resizeImage(file, maxWidth, maxHeight, callback) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
 
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
+async function uploadToImgur(base64Image) {
+    const response = await fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Client-ID ${process.env.IMGUR_CLIENT_ID}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            image: base64Image.split(',')[1], // Only the base64 part
+            type: 'base64'
+        })
+    });
 
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-
-            let width = img.width;
-            let height = img.height;
-
-            if (width > height) {
-                if (width > maxWidth) {
-                    height *= maxWidth / width;
-                    width = maxWidth;
-                }
-            } else {
-                if (height > maxHeight) {
-                    width *= maxHeight / height;
-                    height = maxHeight;
-                }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const dataUrl = canvas.toDataURL('image/jpeg');
-            callback(dataUrl);
-        }
+    const data = await response.json();
+    if (data.success) {
+        return data.data.link;
+    } else {
+        console.error('Error uploading to Imgur:', data);
+        return null;
     }
 }
 
@@ -125,8 +145,6 @@ async function displayTableData() {
         }
 
         const data = await response.json();
-        console.log('Fetched data:', data);  // Log the fetched data for debugging
-
         const tableBody = document.querySelector('#table1 tbody');
         tableBody.innerHTML = '';
 
@@ -148,9 +166,9 @@ async function displayTableData() {
             row.appendChild(unitMesinCell);
 
             const fotoCell = document.createElement('td');
-            if (item.foto && item.foto.data) {
+            if (item.foto) {
                 const img = document.createElement('img');
-                img.src = `data:${item.foto.contentType};base64,${item.foto.data}`;
+                img.src = item.foto;
                 img.width = 100;
                 img.height = 60;
                 fotoCell.appendChild(img);
