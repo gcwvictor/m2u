@@ -7,6 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 const app = express();
@@ -16,12 +17,10 @@ const port = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
+}).then(() => {
   console.log('MongoDB connected...');
+}).catch((err) => {
+  console.error('MongoDB connection error:', err);
 });
 
 // Define schemas and models
@@ -49,9 +48,10 @@ const gangguanSchema = new mongoose.Schema({
   foto: String,
 });
 
-const User = mongoose.model('User', userSchema);
-const JkmData = mongoose.model('JkmData', jkmSchema);
-const GangguanData = mongoose.model('GangguanData', gangguanSchema);
+// Check if models already exist to prevent OverwriteModelError
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+const JkmData = mongoose.models.JkmData || mongoose.model('JkmData', jkmSchema);
+const GangguanData = mongoose.models.GangguanData || mongoose.model('GangguanData', gangguanSchema);
 
 // Middleware
 app.use(bodyParser.json());
@@ -63,9 +63,10 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Session management
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI })
 }));
 
 app.use(passport.initialize());
