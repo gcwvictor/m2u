@@ -37,7 +37,7 @@ async function handleSubmit(event) {
 
         if (response.ok) {
             alert('Data saved successfully');
-            displayTableData();
+            displayTableData(); // Refresh the table data after saving
         } else {
             const errorData = await response.json();
             alert(`Error saving data: ${errorData.message}`);
@@ -58,7 +58,7 @@ async function displayTableData() {
 
         data.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
 
-        data.forEach((item, index) => {
+        data.forEach((item) => {
             const row = document.createElement('tr');
 
             const tanggalCell = document.createElement('td');
@@ -108,7 +108,7 @@ async function deleteRow(id) {
 
         if (response.ok) {
             alert('Data deleted successfully');
-            displayTableData();
+            displayTableData(); // Refresh the table data after deletion
         } else {
             alert('Error deleting data');
         }
@@ -141,3 +141,4 @@ async function exportTableData() {
         console.error('Error exporting data: ', error);
     }
 }
+

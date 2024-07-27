@@ -59,16 +59,23 @@
         <div class="tableArea">
             <div class="tableHeadline">
                 <label class="tableLable">Laporan Adanya Gangguan</label>
-                <button class="btnExport" id="exportTable" onclick="exportTables()">Export Data</button>
+                <button class="btnExport" id="exportTable" onclick="exportTableData()">Export Data</button>
             </div>
             <div class="labeledTable">
-                <!-- Table content -->
+                <table class="data-table" id="table1">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                            <th>Unit Mesin</th>
+                            <th>Foto</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
-        <!-- <div class="user-info">
-            <p>Welcome, <span id="username"></span>!</p>
-            <a href="/logout">Logout</a>
-        </div> -->
     </div>
     <script>
         function navigateToJKM(){
@@ -101,6 +108,8 @@
                     document.getElementById('username').textContent = data.username;
                 })
                 .catch(error => console.error('Error fetching user data:', error));
+
+            displayTableData();
         });
     </script>
 </body>
