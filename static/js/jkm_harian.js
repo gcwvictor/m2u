@@ -1,27 +1,31 @@
-function navigateToHome(){
-    window.location.href = "../views/index.html";
+function navigateToMenu() {
+    window.location.href = "./menu.html";
 }
-function navigateToGangguan(){
-    window.location.href = "../views/temuan_gangguan.html";
-}
-function navigateToMaintenance(){
-    window.location.href = "../views/maintenance.html";
-}
-function setActiveTab() {
-      const url = window.location.pathname;
-      document.querySelectorAll('.tabButton').forEach(button => {
-      button.classList.remove('active');
-      });
 
-      if (url.includes('jkm_harian.html')) {
-      document.getElementById('jkmButton').classList.add('active');
-      } else if (url.includes('temuan_gangguan.html')) {
-      document.getElementById('gangguanButton').classList.add('active');
-      }
+function navigateToGangguan() {
+    window.location.href = "./temuan_gangguan.html";
 }
+
+function navigateToJKM() {
+    window.location.href = "./jkm_harian.html";
+}
+
+function setActiveTab() {
+    const url = window.location.pathname;
+    document.querySelectorAll('.tabButton').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    if (url.includes('jkm_harian.html')) {
+        document.getElementById('jkmButton').classList.add('active');
+    } else if (url.includes('temuan_gangguan.html')) {
+        document.getElementById('gangguanButton').classList.add('active');
+    }
+}
+
 window.onload = setActiveTab;
 
-document.addEventListener('DOMContentLoaded', loadFromLocalStorage);
+document.addEventListener('DOMContentLoaded', loadFromDatabase);
 
 function handleDateChange(event) {
     const date = event.target.value;
@@ -55,32 +59,32 @@ function handleDateChange(event) {
         jsbField.disabled = true;
 
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
-        const previousData = getPreviousDayData(date, unitMesin);
-
-        if (previousData) {
-            jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
-            jsmoField.value = previousData.jsmo || 0;
-            jsbField.value = previousData.jsb || 0;
-        } else {
-            jumlahJKMHarianField.value = 0;
-            jsmoField.value = 0;
-            jsbField.value = 0;
-        }
+        getPreviousDayData(date, unitMesin).then(previousData => {
+            if (previousData) {
+                jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
+                jsmoField.value = previousData.jsmo || 0;
+                jsbField.value = previousData.jsb || 0;
+            } else {
+                jumlahJKMHarianField.value = 0;
+                jsmoField.value = 0;
+                jsbField.value = 0;
+            }
+        });
     }
 }
 
-function getPreviousDayData(date, unitMesin) {
-    const tableId = `table${unitMesin}`;
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-
+async function getPreviousDayData(date, unitMesin) {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() - 1);
     const previousDate = currentDate.toISOString().split('T')[0];
 
-    return existingData.find(entry => entry.tanggal === previousDate);
+    const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}&tanggal=${previousDate}`);
+    const data = await response.json();
+
+    return data.length > 0 ? data[0] : null;
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
@@ -98,40 +102,27 @@ function handleSubmit(event) {
     }
 
     if (!isFirstOfMonth(data.tanggal)) {
-        data.jumlah_jkm_har = calculateJumlahJKMHarian(data.tanggal, data.unit_mesin);
-        data.jsmo = calculateJSMO(data.tanggal, data.unit_mesin);
-        data.jsb = calculateJSB(data.tanggal, data.unit_mesin);
+        data.jumlah_jkm_har = await calculateJumlahJKMHarian(data.tanggal, data.unit_mesin);
+        data.jsmo = await calculateJSMO(data.tanggal, data.unit_mesin);
+        data.jsb = await calculateJSB(data.tanggal, data.unit_mesin);
     }
 
-    const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
-
-    fields.forEach(field => {
-        const newCell = document.createElement('td');
-        newCell.textContent = data[field] || ' ';
-        newRow.appendChild(newCell);
+    const response = await fetch('/saveJkmData', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     });
 
-    const deleteCell = document.createElement('td');
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'deleteButton';
-    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    deleteButton.onclick = function() {
-        table.removeChild(newRow);
-        removeFromLocalStorage(data, tableId);
-    };
-    deleteCell.appendChild(deleteButton);
-    newRow.appendChild(deleteCell);
-
-    table.appendChild(newRow);
-    sortTableByDate(table);
-
-    saveToLocalStorage(data, tableId);
-    event.target.reset();
+    if (response.ok) {
+        const savedData = await response.json();
+        addRowToTable(table, savedData);
+        event.target.reset();
+    } else {
+        alert('Error saving data');
+    }
 }
-
-data.jumlah_jkm_har = calculateJumlahJKMHarian(data.tanggal, data.unit_mesin).toString();
-data.jsmo = calculateJSMO(data.tanggal, data.unit_mesin).toString();
-data.jsb = calculateJSB(data.tanggal, data.unit_mesin).toString();
 
 function validateDate(date) {
     const selectedDate = new Date(date);
@@ -143,15 +134,8 @@ function isFirstOfMonth(date) {
     return d.getDate() === 1;
 }
 
-function calculateJumlahJKMHarian(date, unitMesin) {
-    const tableId = `table${unitMesin}`;
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() - 1);
-    const previousDate = currentDate.toISOString().split('T')[0];
-
-    const previousDayData = existingData.find(entry => entry.tanggal === previousDate);
+async function calculateJumlahJKMHarian(date, unitMesin) {
+    const previousDayData = await getPreviousDayData(date, unitMesin);
 
     if (previousDayData) {
         const previousJumlahJKMHarian = parseFloat(previousDayData.jumlah_jkm_har) || 0;
@@ -162,15 +146,8 @@ function calculateJumlahJKMHarian(date, unitMesin) {
     return 'N/A';
 }
 
-function calculateJSMO(date, unitMesin) {
-    const tableId = `table${unitMesin}`;
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() - 1);
-    const previousDate = currentDate.toISOString().split('T')[0];
-
-    const previousDayData = existingData.find(entry => entry.tanggal === previousDate);
+async function calculateJSMO(date, unitMesin) {
+    const previousDayData = await getPreviousDayData(date, unitMesin);
 
     if (previousDayData) {
         const previousJSMO = parseFloat(previousDayData.jsmo) || 0;
@@ -181,15 +158,8 @@ function calculateJSMO(date, unitMesin) {
     return 'N/A';
 }
 
-function calculateJSB(date, unitMesin) {
-    const tableId = `table${unitMesin}`;
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-
-    const currentDate = new Date(date);
-    currentDate.setDate(currentDate.getDate() - 1);
-    const previousDate = currentDate.toISOString().split('T')[0];
-
-    const previousDayData = existingData.find(entry => entry.tanggal === previousDate);
+async function calculateJSB(date, unitMesin) {
+    const previousDayData = await getPreviousDayData(date, unitMesin);
 
     if (previousDayData) {
         const previousJSB = parseFloat(previousDayData.jsb) || 0;
@@ -200,10 +170,7 @@ function calculateJSB(date, unitMesin) {
     return 'N/A';
 }
 
-function validateSequentialDates(date, unitMesin) {
-    const tableId = `table${unitMesin}`;
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-
+async function validateSequentialDates(date, unitMesin) {
     const currentDate = new Date(date);
 
     for (let i = 1; i < currentDate.getDate(); i++) {
@@ -211,8 +178,10 @@ function validateSequentialDates(date, unitMesin) {
         previousDate.setDate(i);
         const previousDateString = previousDate.toISOString().split('T')[0];
 
-        const previousDayData = existingData.find(entry => entry.tanggal === previousDateString);
-        if (!previousDayData) {
+        const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}&tanggal=${previousDateString}`);
+        const data = await response.json();
+
+        if (data.length === 0) {
             alert(`Tanggal ${previousDateString} belum diisi. Harap mengisi tanggal tersebut terlebih dahulu.`);
             return false;
         }
@@ -221,56 +190,50 @@ function validateSequentialDates(date, unitMesin) {
     return true;
 }
 
-function saveToLocalStorage(data, tableId) {
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-    existingData.push(data);
-    localStorage.setItem(tableId, JSON.stringify(existingData));
-}
-
-function removeFromLocalStorage(data, tableId) {
-    const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
-    const updatedData = existingData.filter(item => item.tanggal !== data.tanggal);
-    localStorage.setItem(tableId, JSON.stringify(updatedData));
-}
-
-function loadFromLocalStorage() {
+async function loadFromDatabase() {
     for (let i = 1; i <= 4; i++) {
         const tableId = `table${i}`;
-        const table = document.getElementById(tableId).querySelector('tbody');
-        const existingData = JSON.parse(localStorage.getItem(tableId)) || [];
+        const table = document.getElementById(tableId)?.querySelector('tbody');
+        if (table) {
+            const response = await fetch(`/getJkmData?unit_mesin=${i}`);
+            const existingData = await response.json();
 
-        existingData.forEach(data => {
-            const newRow = document.createElement('tr');
-            const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
-
-            fields.forEach(field => {
-                const newCell = document.createElement('td');
-                newCell.textContent = data[field] || '';
-                newRow.appendChild(newCell);
+            existingData.forEach(data => {
+                addRowToTable(table, data);
             });
-
-            const deleteCell = document.createElement('td');
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'deleteButton';
-            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-            deleteButton.onclick = function() {
-                table.removeChild(newRow);
-                removeFromLocalStorage(data, tableId);
-            };
-            deleteCell.appendChild(deleteButton);
-            newRow.appendChild(deleteCell);
-
-            table.appendChild(newRow);
-        });
-
-        sortTableByDate(table);
+        }
     }
 }
 
-function sortTableByDate(table) {
-    const rows = Array.from(table.rows);
-    rows.sort((a, b) => new Date(a.cells[0].textContent) - new Date(b.cells[0].textContent));
-    rows.forEach(row => table.appendChild(row));
+function addRowToTable(table, data) {
+    const newRow = document.createElement('tr');
+    const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
+
+    fields.forEach(field => {
+        const newCell = document.createElement('td');
+        newCell.textContent = data[field] || '';
+        newRow.appendChild(newCell);
+    });
+
+    const deleteCell = document.createElement('td');
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'deleteButton';
+    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+    deleteButton.onclick = async function() {
+        const response = await fetch(`/deleteJkmData/${data._id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            table.removeChild(newRow);
+        } else {
+            alert('Error deleting data');
+        }
+    };
+    deleteCell.appendChild(deleteButton);
+    newRow.appendChild(deleteCell);
+
+    table.appendChild(newRow);
 }
 
 function exportTables() {
