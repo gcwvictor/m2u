@@ -87,6 +87,82 @@ async function getPreviousDayData(date, unitMesin) {
     return data.length > 0 ? data[0] : null;
 }
 
+// Add these function definitions
+function validateDate(date) {
+    const selectedDate = new Date(date);
+    return selectedDate instanceof Date && !isNaN(selectedDate);
+}
+
+async function validateSequentialDates(date, unit_mesin) {
+    const currentDate = new Date(date);
+
+    for (let i = 1; i < currentDate.getDate(); i++) {
+        const previousDate = new Date(currentDate);
+        previousDate.setDate(i);
+        const previousDateString = previousDate.toISOString().split('T')[0];
+
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}&tanggal=${previousDateString}`);
+        const data = await response.json();
+
+        if (data.length === 0) {
+            alert(`Tanggal ${previousDateString} belum diisi. Harap mengisi tanggal tersebut terlebih dahulu.`);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+async function calculateJumlahJKMHarian(date, unit_mesin) {
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
+
+    if (previousDayData) {
+        const previousJumlahJKMHarian = parseFloat(previousDayData.jumlah_jkm_har) || 0;
+        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
+        return previousJumlahJKMHarian + currentJKMHarian;
+    }
+
+    return 'N/A';
+}
+
+async function calculateJSMO(date, unit_mesin) {
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
+
+    if (previousDayData) {
+        const previousJSMO = parseFloat(previousDayData.jsmo) || 0;
+        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
+        return previousJSMO + currentJKMHarian;
+    }
+
+    return 'N/A';
+}
+
+async function calculateJSB(date, unit_mesin) {
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
+
+    if (previousDayData) {
+        const previousJSB = parseFloat(previousDayData.jsb) || 0;
+        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
+        return previousJSB + currentJKMHarian;
+    }
+
+    return 'N/A';
+}
+
+async function loadFromDatabase() {
+    const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
+    displayTableData(unit_mesin);
+}
+
+// Modify the event listeners and checks for null
+document.addEventListener('DOMContentLoaded', () => {
+    loadFromDatabase();
+    const dropdown = document.getElementById('unit_mesin_dropdown');
+    if (dropdown) {
+        dropdown.addEventListener('change', loadFromDatabase);
+    }
+});
+
 async function handleSubmit(event) {
     event.preventDefault();
 
@@ -119,7 +195,7 @@ async function handleSubmit(event) {
 
         if (response.ok) {
             alert('Data saved successfully');
-            displayTableData(data.unit_mesin);
+            displayTableData(data.unit_mesin); // Refresh the table data after saving
         } else {
             alert('Error saving data');
         }
@@ -180,6 +256,7 @@ async function displayTableData(unit_mesin) {
         console.error('Error fetching data: ', error);
     }
 }
+
 
 async function deleteRow(id) {
     try {

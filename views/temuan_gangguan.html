@@ -102,15 +102,18 @@
         window.onload = setActiveTab;
 
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('/user')
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('username').textContent = data.username;
-                })
-                .catch(error => console.error('Error fetching user data:', error));
+        const usernameElement = document.getElementById('username');
+        fetch('/user')
+            .then(response => response.json())
+            .then(data => {
+                if (usernameElement) {
+                    usernameElement.textContent = data.username;
+                }
+            })
+            .catch(error => console.error('Error fetching user data:', error));
 
-            displayTableData();
-        });
+        displayTableData();
+    });
     </script>
 </body>
 </html>

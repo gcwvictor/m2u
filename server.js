@@ -191,16 +191,16 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
 // Temuan Gangguan CRUD
 app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
   const data = new GangguanData({
-    ...req.body,
-    user: req.user._id,
-    foto: req.file ? req.file.path : '',
+      ...req.body,
+      user: req.user._id,
+      foto: req.file ? req.file.path : '',
   });
   try {
-    await data.save();
-    res.status(201).json(data); // Return the saved data
+      await data.save();
+      res.status(201).json(data); // Return the saved data
   } catch (err) {
-    console.error(err);
-    res.status(400).send('Error saving data');
+      console.error(err);
+      res.status(400).json({ message: 'Error saving data' });
   }
 });
 
