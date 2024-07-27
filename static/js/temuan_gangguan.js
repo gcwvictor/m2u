@@ -142,3 +142,6 @@ async function exportTableData() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', displayTableData);
+
+

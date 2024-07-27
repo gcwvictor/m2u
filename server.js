@@ -160,22 +160,19 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   const data = new JkmData({ ...req.body, user: req.user._id });
   try {
     await data.save();
-    res.status(201).json(data);
+    res.status(201).json(data); // Return the saved data
   } catch (err) {
+    console.error(err);
     res.status(400).send('Error saving data');
   }
 });
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
-  const { unit_mesin, tanggal } = req.query;
   try {
-    const query = { user: req.user._id, unit_mesin };
-    if (tanggal) {
-      query.tanggal = tanggal;
-    }
-    const results = await JkmData.find(query);
+    const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin });
     res.status(200).json(results);
   } catch (err) {
+    console.error(err);
     res.status(400).send('Error fetching data');
   }
 });
@@ -185,39 +182,33 @@ app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
     await JkmData.findByIdAndDelete(req.params.id);
     res.status(200).send('Data deleted');
   } catch (err) {
+    console.error(err);
     res.status(400).send('Error deleting data');
   }
 });
 
+
 // Endpoints
-app.post('/saveGangguanData', ensureAuthenticated, (req, res) => {
-  upload(req, res, async (err) => {
-    if (err instanceof multer.MulterError) {
-      return res.status(500).send({ message: 'File upload error' });
-    } else if (err) {
-      return res.status(500).send({ message: err.message });
-    }
-
-    const data = new GangguanData({
-      ...req.body,
-      user: req.user._id,
-      foto: req.file ? `/uploads/${req.file.filename}` : '',
-    });
-
-    try {
-      await data.save();
-      res.status(201).send('Data added...');
-    } catch (err) {
-      console.error(err);
-      res.status(400).send('Error saving data');
-    }
+// Temuan Gangguan CRUD
+app.post('/saveGangguanData', ensureAuthenticated, upload.single('foto'), async (req, res) => {
+  const data = new GangguanData({
+    ...req.body,
+    user: req.user._id,
+    foto: req.file ? req.file.path : '',
   });
+  try {
+    await data.save();
+    res.status(201).json(data); // Return the saved data
+  } catch (err) {
+    console.error(err);
+    res.status(400).send('Error saving data');
+  }
 });
 
 app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
   try {
     const results = await GangguanData.find({ user: req.user._id });
-    res.status(200).send(results);
+    res.status(200).json(results);
   } catch (err) {
     console.error(err);
     res.status(400).send('Error fetching data');
@@ -233,6 +224,7 @@ app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
     res.status(400).send('Error deleting data');
   }
 });
+
 
 // Endpoint to get user info
 app.get('/user', ensureAuthenticated, (req, res) => {

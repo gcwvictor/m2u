@@ -89,17 +89,16 @@ async function getPreviousDayData(date, unitMesin) {
 
 async function handleSubmit(event) {
     event.preventDefault();
+
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    const table = document.getElementById('dataTable').querySelector('tbody');
-    const newRow = document.createElement('tr');
-
-    if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
-        return;
-    }
 
     if (!validateDate(data.tanggal)) {
         alert('Tanggal harus diisi dengan benar!');
+        return;
+    }
+
+    if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
         return;
     }
 
@@ -109,145 +108,124 @@ async function handleSubmit(event) {
         data.jsb = await calculateJSB(data.tanggal, data.unit_mesin);
     }
 
-    const response = await fetch('/saveJkmData', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-        const savedData = await response.json();
-        addRowToTable(table, savedData);
-        event.target.reset();
-    } else {
-        alert('Error saving data');
-    }
-}
-
-function validateDate(date) {
-    const selectedDate = new Date(date);
-    return selectedDate instanceof Date && !isNaN(selectedDate);
-}
-
-function isFirstOfMonth(date) {
-    const d = new Date(date);
-    return d.getDate() === 1;
-}
-
-async function calculateJumlahJKMHarian(date, unitMesin) {
-    const previousDayData = await getPreviousDayData(date, unitMesin);
-
-    if (previousDayData) {
-        const previousJumlahJKMHarian = parseFloat(previousDayData.jumlah_jkm_har) || 0;
-        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
-        return previousJumlahJKMHarian + currentJKMHarian;
-    }
-
-    return 'N/A';
-}
-
-async function calculateJSMO(date, unitMesin) {
-    const previousDayData = await getPreviousDayData(date, unitMesin);
-
-    if (previousDayData) {
-        const previousJSMO = parseFloat(previousDayData.jsmo) || 0;
-        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
-        return previousJSMO + currentJKMHarian;
-    }
-
-    return 'N/A';
-}
-
-async function calculateJSB(date, unitMesin) {
-    const previousDayData = await getPreviousDayData(date, unitMesin);
-
-    if (previousDayData) {
-        const previousJSB = parseFloat(previousDayData.jsb) || 0;
-        const currentJKMHarian = parseFloat(document.querySelector('input[name="jkm_harian"]').value) || 0;
-        return previousJSB + currentJKMHarian;
-    }
-
-    return 'N/A';
-}
-
-async function validateSequentialDates(date, unitMesin) {
-    const currentDate = new Date(date);
-
-    for (let i = 1; i < currentDate.getDate(); i++) {
-        const previousDate = new Date(currentDate);
-        previousDate.setDate(i);
-        const previousDateString = previousDate.toISOString().split('T')[0];
-
-        const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}&tanggal=${previousDateString}`);
-        const data = await response.json();
-
-        if (data.length === 0) {
-            alert(`Tanggal ${previousDateString} belum diisi. Harap mengisi tanggal tersebut terlebih dahulu.`);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-async function loadFromDatabase() {
-    const unitMesin = document.getElementById('unit_mesin_dropdown').value;
-    const table = document.getElementById('dataTable').querySelector('tbody');
-    table.innerHTML = ''; // Clear existing table rows
-
-    if (unitMesin) {
-        const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}`);
-        const existingData = await response.json();
-
-        existingData.forEach(data => {
-            addRowToTable(table, data);
-        });
-    }
-}
-
-function addRowToTable(table, data) {
-    const newRow = document.createElement('tr');
-    const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
-
-    fields.forEach(field => {
-        const newCell = document.createElement('td');
-        newCell.textContent = data[field] || '';
-        newRow.appendChild(newCell);
-    });
-
-    const deleteCell = document.createElement('td');
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'deleteButton';
-    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    deleteButton.onclick = async function() {
-        const response = await fetch(`/deleteJkmData/${data._id}`, {
-            method: 'DELETE'
+    try {
+        const response = await fetch('/saveJkmData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
 
         if (response.ok) {
-            table.removeChild(newRow);
+            alert('Data saved successfully');
+            displayTableData(data.unit_mesin); // Refresh the table data after saving
+        } else {
+            alert('Error saving data');
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+
+    event.target.reset();
+}
+
+async function displayTableData(unit_mesin) {
+    try {
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+        const data = await response.json();
+        const tableBody = document.querySelector('#table tbody');
+        tableBody.innerHTML = '';
+
+        data.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+
+        data.forEach((item) => {
+            const row = document.createElement('tr');
+
+            const tanggalCell = document.createElement('td');
+            tanggalCell.textContent = item.tanggal;
+            row.appendChild(tanggalCell);
+
+            const jkmHarianCell = document.createElement('td');
+            jkmHarianCell.textContent = item.jkm_harian;
+            row.appendChild(jkmHarianCell);
+
+            const jumlahJkmHarCell = document.createElement('td');
+            jumlahJkmHarCell.textContent = item.jumlah_jkm_har;
+            row.appendChild(jumlahJkmHarCell);
+
+            const jsmoCell = document.createElement('td');
+            jsmoCell.textContent = item.jsmo;
+            row.appendChild(jsmoCell);
+
+            const jsbCell = document.createElement('td');
+            jsbCell.textContent = item.jsb;
+            row.appendChild(jsbCell);
+
+            const keteranganCell = document.createElement('td');
+            keteranganCell.textContent = item.keterangan;
+            row.appendChild(keteranganCell);
+
+            const deleteCell = document.createElement('td');
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'deleteButton';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.onclick = () => deleteRow(item._id);
+            deleteCell.appendChild(deleteButton);
+            row.appendChild(deleteCell);
+
+            tableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching data: ', error);
+    }
+}
+
+async function deleteRow(id) {
+    try {
+        const response = await fetch(`/deleteJkmData/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (response.ok) {
+            alert('Data deleted successfully');
+            displayTableData(); // Refresh the table data after deletion
         } else {
             alert('Error deleting data');
         }
-    };
-    deleteCell.appendChild(deleteButton);
-    newRow.appendChild(deleteCell);
-
-    table.appendChild(newRow);
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
 }
 
-function exportTables() {
-    const unitMesin = document.getElementById('unit_mesin_dropdown').value;
-    const table = document.getElementById('dataTable');
-    const sheetName = `Mesin ${unitMesin}`;
-    
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.table_to_sheet(table);
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+document.getElementById('exportTable').addEventListener('click', function() {
+    exportTableData();
+});
 
-    XLSX.writeFile(wb, `JKM Harian ${sheetName}.xlsx`);
+async function exportTableData() {
+    try {
+        const response = await fetch('/getJkmData');
+        const data = await response.json();
+
+        const exportData = data.map(item => ({
+            'Tanggal': item.tanggal,
+            'JKM Harian': item.jkm_harian,
+            'Jumlah JKM Harian': item.jumlah_jkm_har,
+            'JSMO': item.jsmo,
+            'JSB': item.jsb,
+            'Keterangan': item.keterangan
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'JKM Harian', 'Jumlah JKM Harian', 'JSMO', 'JSB', 'Keterangan'] });
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "JKM Harian");
+        XLSX.writeFile(workbook, 'JKM_Harian.xlsx');
+    } catch (error) {
+        console.error('Error exporting data: ', error);
+    }
 }
 
-document.addEventListener('DOMContentLoaded', loadFromDatabase);
+document.addEventListener('DOMContentLoaded', () => {
+    const unit_mesin = document.querySelector('select[name="unit_mesin"]').value;
+    displayTableData(unit_mesin);
+});
