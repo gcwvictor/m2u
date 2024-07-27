@@ -215,24 +215,22 @@ async function uploadImageToImgur(imageBase64) {
 //   }
 // });
 
-app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
+app.get('/getGangguanData', ensureAuthenticated, async (req, res) => {
   try {
-      let imageUrl = '';
-      if (req.body.foto) {
-          const base64Image = req.body.foto.split(';base64,').pop();
-          imageUrl = await uploadImageToImgur(base64Image);
-      }
+      console.log('Fetching gangguan data for user:', req.user._id);
+      const results = await GangguanData.find({ user: req.user._id });
+      console.log('Gangguan data fetched:', results);
 
-      const data = new GangguanData({
-          ...req.body,
-          user: req.user._id,
-          foto: imageUrl,
-      });
-      await data.save();
-      res.status(201).json(data); // Return the saved data
+      res.status(200).json(results.map(item => ({
+          ...item.toObject(),
+          foto: item.foto ? {
+              contentType: item.foto.contentType,
+              data: item.foto.data.toString('base64')
+          } : null
+      })));
   } catch (err) {
-      console.error('Error saving data:', err);
-      res.status(400).json({ message: 'Error saving data', error: err.message });
+      console.error('Error fetching data:', err);
+      res.status(400).json({ message: 'Error fetching data', error: err.message });
   }
 });
 
