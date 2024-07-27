@@ -65,53 +65,17 @@
         </div>
         <div class="tableArea">
             <div class="tableHeadline">
-                <label class="tableLable">Data Jam Kerja Mesin</label>
-                <button class="btnExport" onclick="exportTables()">Export Tables</button>
+                <label class="tableLabel">Data Jam Kerja Mesin</label>
+                <select id="unit_mesin_dropdown" class="dropdown">
+                    <option value="1">1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106</option>
+                    <option value="2">2. MTU 18V 2000 G62 S/N 539100415</option>
+                    <option value="3">3. MTU 12V 2000 G62 S/N 535102284</option>
+                    <option value="4">4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728</option>
+                </select>
+                <button class="btnExport" onclick="exportTables()">Export Table</button>
             </div>
             <div class="tableColumn">
-                <table class="data-table" id="table1">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>JKM Harian</th>
-                            <th>Jumlah JKM HAR</th>
-                            <th>JSMO</th>
-                            <th>JSB</th>
-                            <th>Keterangan</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <table class="data-table" id="table2">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>JKM Harian</th>
-                            <th>Jumlah JKM HAR</th>
-                            <th>JSMO</th>
-                            <th>JSB</th>
-                            <th>Keterangan</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <table class="data-table" id="table3">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>JKM Harian</th>
-                            <th>Jumlah JKM HAR</th>
-                            <th>JSMO</th>
-                            <th>JSB</th>
-                            <th>Keterangan</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                <table class="data-table" id="table4">
+                <table class="data-table" id="dataTable">
                     <thead>
                         <tr>
                             <th>Tanggal</th>

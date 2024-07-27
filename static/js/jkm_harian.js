@@ -25,7 +25,10 @@ function setActiveTab() {
 
 window.onload = setActiveTab;
 
-document.addEventListener('DOMContentLoaded', loadFromDatabase);
+document.addEventListener('DOMContentLoaded', () => {
+    loadFromDatabase();
+    document.getElementById('unit_mesin_dropdown').addEventListener('change', loadFromDatabase);
+});
 
 function handleDateChange(event) {
     const date = event.target.value;
@@ -88,8 +91,7 @@ async function handleSubmit(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const data = Object.fromEntries(formData);
-    const tableId = `table${data.unit_mesin}`;
-    const table = document.getElementById(tableId)?.querySelector('tbody');
+    const table = document.getElementById('dataTable').querySelector('tbody');
     const newRow = document.createElement('tr');
 
     if (!await validateSequentialDates(data.tanggal, data.unit_mesin)) {
@@ -191,23 +193,21 @@ async function validateSequentialDates(date, unitMesin) {
 }
 
 async function loadFromDatabase() {
-    for (let i = 1; i <= 4; i++) {
-        const tableId = `table${i}`;
-        const table = document.getElementById(tableId)?.querySelector('tbody');
-        if (table) {
-            const response = await fetch(`/getJkmData?unit_mesin=${i}`);
-            const existingData = await response.json();
+    const unitMesin = document.getElementById('unit_mesin_dropdown').value;
+    const table = document.getElementById('dataTable').querySelector('tbody');
+    table.innerHTML = ''; // Clear existing table rows
 
-            existingData.forEach(data => {
-                addRowToTable(table, data);
-            });
-        }
+    if (unitMesin) {
+        const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}`);
+        const existingData = await response.json();
+
+        existingData.forEach(data => {
+            addRowToTable(table, data);
+        });
     }
 }
 
 function addRowToTable(table, data) {
-    if (!table) return;
-
     const newRow = document.createElement('tr');
     const fields = ['tanggal', 'jkm_harian', 'jumlah_jkm_har', 'jsmo', 'jsb', 'keterangan'];
 
@@ -239,18 +239,15 @@ function addRowToTable(table, data) {
 }
 
 function exportTables() {
-    const tableIds = ['table1', 'table2', 'table3', 'table4'];
-    const sheetNames = ['Mesin 1', 'Mesin 2', 'Mesin 3', 'Mesin 4'];
-
+    const unitMesin = document.getElementById('unit_mesin_dropdown').value;
+    const table = document.getElementById('dataTable');
+    const sheetName = `Mesin ${unitMesin}`;
+    
     const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.table_to_sheet(table);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
-    tableIds.forEach((tableId, index) => {
-        const table = document.getElementById(tableId);
-        const ws = XLSX.utils.table_to_sheet(table);
-        XLSX.utils.book_append_sheet(wb, ws, sheetNames[index]);
-    });
-
-    XLSX.writeFile(wb, 'JKM Harian.xlsx');
+    XLSX.writeFile(wb, `JKM Harian ${sheetName}.xlsx`);
 }
 
 document.addEventListener('DOMContentLoaded', loadFromDatabase);
