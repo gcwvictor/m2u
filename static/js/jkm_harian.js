@@ -57,13 +57,25 @@ function handleDateChange(event) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
                 jsbField.value = previousData.jsb || 0;
-                enableFieldsBasedOnPreviousDate(day, previousData);
+                enableFieldsBasedOnPreviousDate(day);
             } else {
                 alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
                 clearFields();
                 disableAllFieldsExceptDate();
             }
         });
+    }
+}
+
+function enableFieldsBasedOnPreviousDate(day) {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    if (day > 1) {
+        jumlahJKMHarianField.disabled = false;
+        jsmoField.disabled = false;
+        jsbField.disabled = false;
     }
 }
 
