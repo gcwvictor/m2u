@@ -117,9 +117,8 @@ async function uploadToImgur(base64Image) {
 async function displayTableData() {
     try {
         const response = await fetch('/getGangguanData');
-        const errorData = await response.json();
-        
         if (!response.ok) {
+            const errorData = await response.json();
             console.error(`Error fetching data: ${errorData.message}`);
             console.error('Response status:', response.status);
             console.error('Response status text:', response.statusText);
