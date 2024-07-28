@@ -87,32 +87,32 @@ function toBase64(file) {
     });
 }
 
-async function uploadToImgur(base64Image) {
-    try {
-        const response = await fetch('https://api.imgur.com/3/image', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Client-ID ${process.env.IMGUR_CLIENT_ID}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                image: base64Image.split(',')[1], // Only the base64 part
-                type: 'base64'
-            })
-        });
+// async function uploadToImgur(base64Image) {
+//     try {
+//         const response = await fetch('https://api.imgur.com/3/image', {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': 'Client-ID ${process.env.IMGUR_CLIENT_ID}',
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 image: base64Image.split(',')[1], // Only the base64 part
+//                 type: 'base64'
+//             })
+//         });
 
-        const data = await response.json();
-        if (data.success) {
-            return data.data.link;
-        } else {
-            console.error('Error uploading to Imgur:', data);
-            return null;
-        }
-    } catch (error) {
-        console.error('Error uploading to Imgur:', error);
-        return null;
-    }
-}
+//         const data = await response.json();
+//         if (data.success) {
+//             return data.data.link;
+//         } else {
+//             console.error('Error uploading to Imgur:', data);
+//             return null;
+//         }
+//     } catch (error) {
+//         console.error('Error uploading to Imgur:', error);
+//         return null;
+//     }
+// }
 
 async function displayTableData() {
     try {
