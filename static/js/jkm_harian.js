@@ -279,30 +279,6 @@ document.getElementById('exportTable').addEventListener('click', function() {
     exportTableData();
 });
 
-// async function exportTableData() {
-//     try {
-//         const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
-//         const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
-//         const data = await response.json();
-
-//         const exportData = data.map(item => ({
-//             'Tanggal': item.tanggal,
-//             'JKM Harian': item.jkm_harian,
-//             'Jumlah JKM Harian': item.jumlah_jkm_har,
-//             'JSMO': item.jsmo,
-//             'JSB': item.jsb,
-//             'Keterangan': item.keterangan
-//         }));
-
-//         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'JKM Harian', 'Jumlah JKM Harian', 'JSMO', 'JSB', 'Keterangan'] });
-//         const workbook = XLSX.utils.book_new();
-//         XLSX.utils.book_append_sheet(workbook, worksheet, "JKM Harian");
-//         XLSX.writeFile(workbook, 'JKM_Harian.xlsx');
-//     } catch (error) {
-//         console.error('Error exporting data: ', error);
-//     }
-// }
-
 async function exportTableData() {
     try {
         const unitMesins = [
