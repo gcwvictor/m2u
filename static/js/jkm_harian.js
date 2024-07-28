@@ -43,6 +43,7 @@ function handleDateChange(event) {
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
     const jsmoField = document.getElementById('jsmo');
     const jsbField = document.getElementById('jsb');
+    const jkmHarianField = document.getElementById('jkm_harian');
     const currentDate = new Date(date);
     const day = currentDate.getDate();
 
@@ -57,25 +58,13 @@ function handleDateChange(event) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
                 jsbField.value = previousData.jsb || 0;
-                enableFieldsBasedOnPreviousDate(day);
+                jkmHarianField.disabled = false;
             } else {
                 alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
                 clearFields();
                 disableAllFieldsExceptDate();
             }
         });
-    }
-}
-
-function enableFieldsBasedOnPreviousDate(day) {
-    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
-    const jsmoField = document.getElementById('jsmo');
-    const jsbField = document.getElementById('jsb');
-
-    if (day > 1) {
-        jumlahJKMHarianField.disabled = false;
-        jsmoField.disabled = false;
-        jsbField.disabled = false;
     }
 }
 
@@ -88,11 +77,6 @@ async function getPreviousDayData(date, unitMesin) {
     const data = await response.json();
 
     return data.length > 0 ? data[0] : null;
-}
-
-function isFirstOfMonth(date) {
-    const d = new Date(date);
-    return d.getDate() === 1;
 }
 
 async function handleSubmit(event) {
