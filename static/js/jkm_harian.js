@@ -67,6 +67,18 @@ function handleDateChange(event) {
     }
 }
 
+function enableFieldsBasedOnPreviousDate(day) {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    if (day > 1) {
+        jumlahJKMHarianField.disabled = false;
+        jsmoField.disabled = false;
+        jsbField.disabled = false;
+    }
+}
+
 async function getPreviousDayData(date, unitMesin) {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() - 1);
@@ -204,12 +216,10 @@ function disableAllFieldsExceptDate() {
 }
 
 function disableCalculationFields() {
-    const jkmHarianField = document.getElementById('jkm_harian');
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
     const jsmoField = document.getElementById('jsmo');
     const jsbField = document.getElementById('jsb');
 
-    jkmHarianField.disabled = false;
     jumlahJKMHarianField.disabled = true;
     jsmoField.disabled = true;
     jsbField.disabled = true;
@@ -339,6 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const exportButton = document.querySelector('.btnExport');
     if (exportButton) {
-        exportButton.addEventListener('click', exportAllData);
+        exportButton.addEventListener('click', exportTableData);
     }
 });
