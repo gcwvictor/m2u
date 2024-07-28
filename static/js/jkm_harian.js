@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unitMesinDropdown) {
         unitMesinDropdown.addEventListener('change', loadFromDatabase);
     }
+    disableAllFieldsExceptDate();
     loadFromDatabase();
 });
 
@@ -42,41 +43,25 @@ function handleDateChange(event) {
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
     const jsmoField = document.getElementById('jsmo');
     const jsbField = document.getElementById('jsb');
-
     const currentDate = new Date(date);
     const day = currentDate.getDate();
 
     if (day === 1) {
-        jumlahJKMHarianField.required = true;
-        jsmoField.required = true;
-        jsbField.required = true;
-
-        jumlahJKMHarianField.disabled = false;
-        jsmoField.disabled = false;
-        jsbField.disabled = false;
-
-        jumlahJKMHarianField.value = '';
-        jsmoField.value = '';
-        jsbField.value = '';
+        enableAllFields();
+        clearFields();
     } else {
-        jumlahJKMHarianField.required = false;
-        jsmoField.required = false;
-        jsbField.required = false;
-
-        jumlahJKMHarianField.disabled = true;
-        jsmoField.disabled = true;
-        jsbField.disabled = true;
-
+        disableCalculationFields();
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
         getPreviousDayData(date, unitMesin).then(previousData => {
             if (previousData) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
                 jsbField.value = previousData.jsb || 0;
+                enableFieldsBasedOnPreviousDate(day, previousData);
             } else {
-                jumlahJKMHarianField.value = 0;
-                jsmoField.value = 0;
-                jsbField.value = 0;
+                alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
+                clearFields();
+                disableAllFieldsExceptDate();
             }
         });
     }
@@ -200,6 +185,39 @@ async function calculateJSB(date, unit_mesin) {
     }
 
     return 'N/A';
+}
+
+function enableAllFields() {
+    const fields = document.querySelectorAll('.formField input, .formField select');
+    fields.forEach(field => {
+        field.disabled = false;
+    });
+}
+
+function disableAllFieldsExceptDate() {
+    const fields = document.querySelectorAll('.formField input, .formField select');
+    fields.forEach(field => {
+        if (field.id !== 'tanggal') {
+            field.disabled = true;
+        }
+    });
+}
+
+function disableCalculationFields() {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    jumlahJKMHarianField.disabled = true;
+    jsmoField.disabled = true;
+    jsbField.disabled = true;
+}
+
+function clearFields() {
+    const fields = document.querySelectorAll('.formField input');
+    fields.forEach(field => {
+        field.value = '';
+    });
 }
 
 async function loadFromDatabase() {
