@@ -196,24 +196,6 @@ async function uploadImageToImgur(imageBase64) {
   }
 }
 
-async function uploadImageToImgur(imageBase64) {
-  try {
-      const response = await axios.post('https://api.imgur.com/3/upload', {
-          image: imageBase64,
-          type: 'base64',
-      }, {
-          headers: {
-              Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`
-          }
-      });
-
-      return response.data.data.link; // Return the Imgur URL of the uploaded image
-  } catch (error) {
-      console.error('Error uploading image to Imgur:', error);
-      throw new Error('Error uploading image to Imgur');
-  }
-}
-
 app.post('/saveGangguanData', ensureAuthenticated, async (req, res) => {
   try {
       let imageUrl = '';

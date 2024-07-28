@@ -50,31 +50,30 @@ async function handleSubmit(event) {
 
     const file = formData.get('foto');
     if (file) {
-        resizeImage(file, 800, 600, async (base64Image) => {
-            data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
+        const base64Image = await toBase64(file);
+        data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
 
-            try {
-                const response = await fetch('/saveGangguanData', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+        try {
+            const response = await fetch('/saveGangguanData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
-                if (response.ok) {
-                    alert('Data saved successfully');
-                    displayTableData(); // Refresh the table data after saving
-                } else {
-                    const errorData = await response.json();
-                    alert(`Error saving data: ${errorData.message}`);
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
+            if (response.ok) {
+                alert('Data saved successfully');
+                displayTableData(); // Refresh the table data after saving
+            } else {
+                const errorData = await response.json();
+                alert(`Error saving data: ${errorData.message}`);
             }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
 
-            event.target.reset();
-        });
+        event.target.reset();
     }
 }
 
