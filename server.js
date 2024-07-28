@@ -158,24 +158,13 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
-//   try {
-//     const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin });
-//     res.status(200).json(results);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(400).send('Error fetching data');
-//   }
-// });
-
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
   try {
-      const { unit_mesin } = req.query;
-      const results = await JkmData.find({ user: req.user._id, unit_mesin }).sort({ tanggal: 1 });
-      res.status(200).json(results);
+    const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin });
+    res.status(200).json(results);
   } catch (err) {
-      console.error('Error fetching data:', err);
-      res.status(400).json({ message: 'Error fetching data', error: err.message });
+    console.error(err);
+    res.status(400).send('Error fetching data');
   }
 });
 
