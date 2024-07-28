@@ -87,33 +87,6 @@ function toBase64(file) {
     });
 }
 
-// async function uploadToImgur(base64Image) {
-//     try {
-//         const response = await fetch('https://api.imgur.com/3/image', {
-//             method: 'POST',
-//             headers: {
-//                 'Authorization': 'Client-ID ${process.env.IMGUR_CLIENT_ID}',
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 image: base64Image.split(',')[1], // Only the base64 part
-//                 type: 'base64'
-//             })
-//         });
-
-//         const data = await response.json();
-//         if (data.success) {
-//             return data.data.link;
-//         } else {
-//             console.error('Error uploading to Imgur:', data);
-//             return null;
-//         }
-//     } catch (error) {
-//         console.error('Error uploading to Imgur:', error);
-//         return null;
-//     }
-// }
-
 async function displayTableData() {
     try {
         const response = await fetch('/getGangguanData');
@@ -206,13 +179,22 @@ async function exportTableData() {
             'Tanggal': item.tanggal,
             'Keterangan': item.nama_gangguan,
             'Unit Mesin': item.unit_mesin,
-            'Foto': item.foto ? `data:${item.foto.contentType};base64,${item.foto.data}` : 'No Image'
+            'Foto': item.foto ? `IMAGE("${item.foto}")` : 'No Image'
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
-        XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
+        
+        // Function to add images in Excel
+        const ws = workbook.Sheets["Temuan Gangguan"];
+        data.forEach((item, index) => {
+            if (item.foto) {
+                ws[`D${index + 2}`].l = { Target: item.foto, Tooltip: 'Image Link' };
+            }
+        });
+
+        XLSX.writeFile(workbook, 'Temuan_Gangguan.xlsx');
     } catch (error) {
         console.error('Error exporting data:', error);
     }
