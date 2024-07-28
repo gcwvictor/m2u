@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unitMesinDropdown) {
         unitMesinDropdown.addEventListener('change', loadFromDatabase);
     }
-    disableAllFieldsExceptDate();
     loadFromDatabase();
 });
 
@@ -43,26 +42,42 @@ function handleDateChange(event) {
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
     const jsmoField = document.getElementById('jsmo');
     const jsbField = document.getElementById('jsb');
-    const jkmHarianField = document.getElementById('jkm_harian');
+
     const currentDate = new Date(date);
     const day = currentDate.getDate();
 
     if (day === 1) {
-        enableAllFields();
-        clearFields();
+        jumlahJKMHarianField.required = true;
+        jsmoField.required = true;
+        jsbField.required = true;
+
+        jumlahJKMHarianField.disabled = false;
+        jsmoField.disabled = false;
+        jsbField.disabled = false;
+
+        jumlahJKMHarianField.value = '';
+        jsmoField.value = '';
+        jsbField.value = '';
+
     } else {
-        disableCalculationFields();
+        jumlahJKMHarianField.required = false;
+        jsmoField.required = false;
+        jsbField.required = false;
+
+        jumlahJKMHarianField.disabled = true;
+        jsmoField.disabled = true;
+        jsbField.disabled = true;
+
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
         getPreviousDayData(date, unitMesin).then(previousData => {
             if (previousData) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
                 jsbField.value = previousData.jsb || 0;
-                jkmHarianField.disabled = false;
             } else {
-                alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
-                clearFields();
-                disableAllFieldsExceptDate();
+                jumlahJKMHarianField.value = 0;
+                jsmoField.value = 0;
+                jsbField.value = 0;
             }
         });
     }
@@ -77,6 +92,11 @@ async function getPreviousDayData(date, unitMesin) {
     const data = await response.json();
 
     return data.length > 0 ? data[0] : null;
+}
+
+function isFirstOfMonth(date) {
+    const d = new Date(date);
+    return d.getDate() === 1;
 }
 
 async function handleSubmit(event) {
@@ -181,39 +201,6 @@ async function calculateJSB(date, unit_mesin) {
     }
 
     return 'N/A';
-}
-
-function enableAllFields() {
-    const fields = document.querySelectorAll('.formField input, .formField select');
-    fields.forEach(field => {
-        field.disabled = false;
-    });
-}
-
-function disableAllFieldsExceptDate() {
-    const fields = document.querySelectorAll('.formField input, .formField select');
-    fields.forEach(field => {
-        if (field.id !== 'tanggal') {
-            field.disabled = true;
-        }
-    });
-}
-
-function disableCalculationFields() {
-    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
-    const jsmoField = document.getElementById('jsmo');
-    const jsbField = document.getElementById('jsb');
-
-    jumlahJKMHarianField.disabled = true;
-    jsmoField.disabled = true;
-    jsbField.disabled = true;
-}
-
-function clearFields() {
-    const fields = document.querySelectorAll('.formField input');
-    fields.forEach(field => {
-        field.value = '';
-    });
 }
 
 async function loadFromDatabase() {
@@ -333,6 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const exportButton = document.querySelector('.btnExport');
     if (exportButton) {
-        exportButton.addEventListener('click', exportTableData);
+        exportButton.addEventListener('click', exportAllData);
     }
 });
