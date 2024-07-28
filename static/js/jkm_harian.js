@@ -40,9 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleDateChange(event) {
     const date = event.target.value;
-    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
-    const jsmoField = document.getElementById('jsmo');
-    const jsbField = document.getElementById('jsb');
     const currentDate = new Date(date);
     const day = currentDate.getDate();
 
@@ -54,28 +51,14 @@ function handleDateChange(event) {
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
         getPreviousDayData(date, unitMesin).then(previousData => {
             if (previousData) {
-                jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
-                jsmoField.value = previousData.jsmo || 0;
-                jsbField.value = previousData.jsb || 0;
-                enableFieldsBasedOnPreviousDate(day);
+                setPreviousData(previousData);
+                enableCalculationFields();
             } else {
                 alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
                 clearFields();
                 disableAllFieldsExceptDate();
             }
         });
-    }
-}
-
-function enableFieldsBasedOnPreviousDate(day) {
-    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
-    const jsmoField = document.getElementById('jsmo');
-    const jsbField = document.getElementById('jsb');
-
-    if (day > 1) {
-        jumlahJKMHarianField.disabled = false;
-        jsmoField.disabled = false;
-        jsbField.disabled = false;
     }
 }
 
@@ -88,6 +71,12 @@ async function getPreviousDayData(date, unitMesin) {
     const data = await response.json();
 
     return data.length > 0 ? data[0] : null;
+}
+
+function setPreviousData(data) {
+    document.getElementById('jumlah_jkm_har').value = data.jumlah_jkm_har || 0;
+    document.getElementById('jsmo').value = data.jsmo || 0;
+    document.getElementById('jsb').value = data.jsb || 0;
 }
 
 function isFirstOfMonth(date) {
@@ -223,6 +212,16 @@ function disableCalculationFields() {
     jumlahJKMHarianField.disabled = true;
     jsmoField.disabled = true;
     jsbField.disabled = true;
+}
+
+function enableCalculationFields() {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    jumlahJKMHarianField.disabled = false;
+    jsmoField.disabled = false;
+    jsbField.disabled = false;
 }
 
 function clearFields() {
