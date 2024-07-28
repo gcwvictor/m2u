@@ -168,6 +168,17 @@ app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
   }
 });
 
+app.get('/getLastJkmData', ensureAuthenticated, async (req, res) => {
+  try {
+      const unitMesin = req.query.unit_mesin;
+      const results = await JkmData.find({ user: req.user._id, unit_mesin: unitMesin }).sort({ tanggal: -1 }).limit(1);
+      res.status(200).json(results);
+  } catch (err) {
+      console.error('Error fetching last JKM data:', err);
+      res.status(400).json({ message: 'Error fetching last JKM data', error: err.message });
+  }
+});
+
 app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
   try {
     await JkmData.findByIdAndDelete(req.params.id);
