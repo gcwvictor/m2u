@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (unitMesinDropdown) {
         unitMesinDropdown.addEventListener('change', loadFromDatabase);
     }
+    disableAllFieldsExceptDate();
     loadFromDatabase();
 });
 
@@ -42,37 +43,27 @@ function handleDateChange(event) {
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
     const jsmoField = document.getElementById('jsmo');
     const jsbField = document.getElementById('jsb');
-
     const currentDate = new Date(date);
     const day = currentDate.getDate();
 
+    if (!validateSequentialDates(date)) {
+        alert('Tanggal tidak valid. Harap mengisi tanggal secara berurutan.');
+        event.target.value = '';
+        return;
+    }
+
     if (day === 1) {
-        jumlahJKMHarianField.required = true;
-        jsmoField.required = true;
-        jsbField.required = true;
-
-        jumlahJKMHarianField.disabled = false;
-        jsmoField.disabled = false;
-        jsbField.disabled = false;
-
-        jumlahJKMHarianField.value = '';
-        jsmoField.value = '';
-        jsbField.value = '';
+        enableAllFields();
+        clearFields();
     } else {
-        jumlahJKMHarianField.required = false;
-        jsmoField.required = false;
-        jsbField.required = false;
-
-        jumlahJKMHarianField.disabled = true;
-        jsmoField.disabled = true;
-        jsbField.disabled = true;
-
+        disableCalculationFields();
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
-        getLastDayData(unitMesin).then(previousData => {
+        getPreviousDayData(date, unitMesin).then(previousData => {
             if (previousData) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
                 jsbField.value = previousData.jsb || 0;
+                enableFieldsBasedOnPreviousDate(day);
             } else {
                 alert(`Tanggal ${date} tidak bisa dipilih karena data tanggal sebelumnya tidak ada.`);
                 clearFields();
@@ -82,8 +73,24 @@ function handleDateChange(event) {
     }
 }
 
-async function getLastDayData(unitMesin) {
-    const response = await fetch(`/getLastJkmData?unit_mesin=${unitMesin}`);
+function enableFieldsBasedOnPreviousDate(day) {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    if (day > 1) {
+        jumlahJKMHarianField.disabled = false;
+        jsmoField.disabled = false;
+        jsbField.disabled = false;
+    }
+}
+
+async function getPreviousDayData(date, unitMesin) {
+    const currentDate = new Date(date);
+    currentDate.setDate(currentDate.getDate() - 1);
+    const previousDate = currentDate.toISOString().split('T')[0];
+
+    const response = await fetch(`/getJkmData?unit_mesin=${unitMesin}&tanggal=${previousDate}`);
     const data = await response.json();
 
     return data.length > 0 ? data[0] : null;
@@ -142,7 +149,11 @@ function validateDate(date) {
     return selectedDate instanceof Date && !isNaN(selectedDate);
 }
 
-async function validateSequentialDates(date, unit_mesin) {
+async function validateSequentialDates(date) {
+    const unit_mesin = document.querySelector('select[name="unit_mesin"]').value;
+    const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+    const data = await response.json();
+
     const currentDate = new Date(date);
 
     for (let i = 1; i < currentDate.getDate(); i++) {
@@ -150,10 +161,8 @@ async function validateSequentialDates(date, unit_mesin) {
         previousDate.setDate(i);
         const previousDateString = previousDate.toISOString().split('T')[0];
 
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}&tanggal=${previousDateString}`);
-        const data = await response.json();
-
-        if (data.length === 0) {
+        const previousDayData = data.find(entry => entry.tanggal === previousDateString);
+        if (!previousDayData) {
             alert(`Tanggal ${previousDateString} belum diisi. Harap mengisi tanggal tersebut terlebih dahulu.`);
             return false;
         }
@@ -163,7 +172,7 @@ async function validateSequentialDates(date, unit_mesin) {
 }
 
 async function calculateJumlahJKMHarian(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
 
     if (previousDayData) {
         const previousJumlahJKMHarian = parseFloat(previousDayData.jumlah_jkm_har) || 0;
@@ -175,7 +184,7 @@ async function calculateJumlahJKMHarian(date, unit_mesin) {
 }
 
 async function calculateJSMO(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
 
     if (previousDayData) {
         const previousJSMO = parseFloat(previousDayData.jsmo) || 0;
@@ -187,7 +196,7 @@ async function calculateJSMO(date, unit_mesin) {
 }
 
 async function calculateJSB(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(date, unit_mesin);
 
     if (previousDayData) {
         const previousJSB = parseFloat(previousDayData.jsb) || 0;
@@ -212,6 +221,16 @@ function disableAllFieldsExceptDate() {
             field.disabled = true;
         }
     });
+}
+
+function disableCalculationFields() {
+    const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+
+    jumlahJKMHarianField.disabled = true;
+    jsmoField.disabled = true;
+    jsbField.disabled = true;
 }
 
 function clearFields() {
