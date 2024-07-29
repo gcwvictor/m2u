@@ -33,10 +33,6 @@
             <div class="headline23">Input JKM Harian</div>
             <form class="fieldArea" id="jkmForm" action="/submit_jkm" method="POST" onsubmit="handleSubmit(event)">
                 <div class="formField">
-                    <label class="fieldLabel" for="tanggal">Tanggal*</label>
-                    <input type="date" class="textField" id="tanggal" name="tanggal" required onchange="handleDateChange(event)">
-                </div>
-                <div class="formField">
                     <label class="fieldLabel" for="unit_mesin">Unit Mesin</label>
                     <select class="dropdown" id="unit_mesin" name="unit_mesin" required>
                         <option value="1">1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106</option>
@@ -44,6 +40,10 @@
                         <option value="3">3. MTU 12V 2000 G62 S/N 535102284</option>
                         <option value="4">4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728</option>
                     </select>
+                </div>
+                <div class="formField">
+                    <label class="fieldLabel" for="tanggal">Tanggal*</label>
+                    <input type="date" class="textField" id="tanggal" name="tanggal" required onchange="handleDateChange(event)">
                 </div>
                 <div class="formField">
                     <label class="fieldLabel" for="jkm_harian">JKM Harian</label>
