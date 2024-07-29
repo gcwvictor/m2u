@@ -106,7 +106,7 @@ body{
     position: relative;
 }
   
-.bottomVertab {
+.middleVertab {
     justify-content: center;
     display: flex;
     flex-direction: column;
@@ -131,6 +131,25 @@ body{
   
 .tabButton.active {
     background-color: var(--primary-pressed);
+}
+
+.tabButtonLogout {
+    color: var(--neutral-10);
+    width: 100%;
+    height: 56px;
+    border-style: none;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: var(--primary-main);
+}
+  
+.tabButtonLogout:hover {
+    background-color: var(--danger-hover);
+}
+  
+.tabButtonLogout.active {
+    background-color: var(--danger-pressed);
 }
 
 .logoForm {
