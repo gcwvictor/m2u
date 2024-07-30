@@ -73,7 +73,8 @@ body{
   flex-direction: row;
   justify-content: center;
   position: relative;
-  gap: 24px;
+  gap: 12px;
+  align-items: center;
 }
 
 .product{
