@@ -326,7 +326,7 @@ async function exportTableData() {
             XLSX.utils.book_append_sheet(workbook, worksheet, unitMesin.name);
         }
 
-        XLSX.writeFile(workbook, 'JKM_Harian_All_Machines.xlsx');
+        XLSX.writeFile(workbook, 'JKM Harian.xlsx');
     } catch (error) {
         console.error('Error exporting data: ', error);
     }
