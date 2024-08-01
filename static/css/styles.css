@@ -149,10 +149,12 @@ body{
 .btnInput:hover{  
   background: var(--primary-hover, #125d72);
   transition: 0.3s;
+  border-style: none;
 }
 .btnInput:active{  
   background: var(--primary-pressed, #125d72);
   transition: 0.3s;
+  border-style: none;
 }
 
 .btnLogout{

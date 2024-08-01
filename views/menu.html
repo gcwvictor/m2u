@@ -29,6 +29,7 @@
         <div class="inputOptions">
             <button class="btnInput" onclick="navigateToJKM()">Input JKM Harian</button>
             <button class="btnInput" onclick="navigateToGangguan()">Input Temuan Gangguan</button>
+            <button class="btnInput" onclick="navigateToPemeliharaan()">Input Pemeliharaan Harian</button>
         </div>
       </div>
     </div>
@@ -38,6 +39,9 @@
         }
         function navigateToGangguan(){
         window.location.href = "./temuan_gangguan.html";
+        }
+        function navigateToPemeliharaan(){
+        window.location.href = "./pemeliharaan.html";
         }
         function navigateToLogout() {
         window.location.href = "/logout";
