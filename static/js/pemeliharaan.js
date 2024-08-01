@@ -2,8 +2,8 @@ function navigateToJKM() {
     window.location.href = "./jkm_harian.html";
 }
 
-function navigateToPemeliharaan() {
-    window.location.href = "./pemeliharaan.html";
+function navigateToGangguan() {
+    window.location.href = "./temuan_gangguan.html";
 }
 
 function navigateToHome() {
@@ -188,17 +188,17 @@ async function exportTableData() {
 
         const worksheet = XLSX.utils.json_to_sheet(exportData, { header: ['Tanggal', 'Keterangan', 'Unit Mesin', 'Foto'] });
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Temuan Gangguan");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Pemeliharaan Harian");
         
         // Function to add images in Excel
-        const ws = workbook.Sheets["Temuan Gangguan"];
+        const ws = workbook.Sheets["Pemeliharaan Harian"];
         data.forEach((item, index) => {
             if (item.foto) {
                 ws[`D${index + 2}`].l = { Target: item.foto, Tooltip: 'Image Link' };
             }
         });
 
-        XLSX.writeFile(workbook, 'Temuan Gangguan.xlsx');
+        XLSX.writeFile(workbook, 'Pemeliharaan Harian.xlsx');
     } catch (error) {
         console.error('Error exporting data:', error);
     }

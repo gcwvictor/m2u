@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temuan Gangguan</title>
+    <title>Pemeliharaan Harian</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../static/css/stylesGangguan.css">
-    <script src="../static/js/temuan_gangguan.js" defer></script>
+    <link rel="stylesheet" href="../static/css/stylesPemeliharaan.css">
+    <script src="../static/js/pemeliharaan.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -33,15 +33,15 @@
             </div>
         </div>
         <div class="formArea">
-            <div class="headline23">Input Temuan Gangguan</div>
+            <div class="headline23">Input Pemeliharaan Harian</div>
             <form class="fieldArea" id="gangguanForm" enctype="multipart/form-data" onsubmit="handleSubmit(event)">
                 <div class="formField">
                     <label class="fieldLabel" for="tanggal">Tanggal*</label>
                     <input class="textField" type="date" id="tanggal" name="tanggal" required>
                 </div>
                 <div class="formField">
-                    <label class="fieldLabel" for="nama_gangguan">Keterangan*</label>
-                    <input class="textField" type="text" id="nama_gangguan" name="nama_gangguan" required>
+                    <label class="fieldLabel" for="nama_pemeliharaan">Keterangan*</label>
+                    <input class="textField" type="text" id="nama_pemeliharaan" name="nama_pemeliharaan" required>
                 </div>
                 <div class="formField">
                     <label class="fieldLabel" for="unit_mesin">Unit Mesin*</label>
@@ -63,7 +63,7 @@
         </div>
         <div class="tableArea">
             <div class="tableHeadline">
-                <label class="tableLable">Laporan Adanya Gangguan</label>
+                <label class="tableLable">Laporan Pemeliharaan Harian</label>
                 <button class="btnExport" id="exportTable" onclick="exportTableData()">Export Data</button>
             </div>
             <div class="labeledTable">

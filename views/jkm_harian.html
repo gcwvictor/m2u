@@ -22,6 +22,9 @@
                 <button class="tabButton" id="gangguanButton" onclick="navigateToGangguan()">
                     <i class="fa-xl fa-solid fa-bug"></i>
                 </button>
+                <button class="tabButton" id="pemeliharaanButton" onclick="navigateToPemeliharaan()">
+                    <i class="fa-xl fa-solid fa-screwdriver-wrench"></i>
+                </button>
             </div>
             <div class="bottomVertab">
                 <button class="tabButtonLogout" onclick="navigateToLogout()">
@@ -98,15 +101,6 @@
         </div>
     </div>
     <script>
-        function navigateToMenu(){
-            window.location.href = "./menu.html";
-        }
-        function navigateToGangguan(){
-            window.location.href = "./temuan_gangguan.html";
-        }
-        function navigateToLogout() {
-            window.location.href = "/logout";
-        }
         function setActiveTab() {
             const url = window.location.pathname;
             document.querySelectorAll('.tabButton').forEach(button => {
@@ -117,6 +111,8 @@
                 document.getElementById('jkmButton').classList.add('active');
             } else if (url.includes('temuan_gangguan.html')) {
                 document.getElementById('gangguanButton').classList.add('active');
+            } else if (url.includes('pemeliharaan.html')) {
+                document.getElementById('pemeliharaanButton').classList.add('active');
             }
         }
         window.onload = setActiveTab;

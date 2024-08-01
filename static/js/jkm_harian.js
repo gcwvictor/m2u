@@ -6,8 +6,8 @@ function navigateToGangguan() {
     window.location.href = "./temuan_gangguan.html";
 }
 
-function navigateToJKM() {
-    window.location.href = "./jkm_harian.html";
+function navigateToPemeliharaan() {
+    window.location.href = "./pemeliharaan.html";
 }
 
 function navigateToLogout() {
