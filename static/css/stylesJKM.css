@@ -129,7 +129,7 @@ body{
     background-color: var(--primary-hover);
 }
   
-.tabButton.active {
+.tabButton:active {
     background-color: var(--primary-pressed);
 }
 
