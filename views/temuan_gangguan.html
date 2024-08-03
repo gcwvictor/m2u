@@ -83,22 +83,6 @@
         </div>
     </div>
     <script>
-        function setActiveTab() {
-            const url = window.location.pathname;
-            document.querySelectorAll('.tabButton').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            if (url.includes('jkm_harian.html')) {
-                document.getElementById('jkmButton').classList.add('active');
-            } else if (url.includes('temuan_gangguan.html')) {
-                document.getElementById('gangguanButton').classList.add('active');
-            } else if (url.includes('pemeliharaan.html')) {
-                document.getElementById('pemeliharaanButton').classList.add('active');
-            } 
-        }
-        window.onload = setActiveTab;
-
         document.addEventListener('DOMContentLoaded', () => {
             const usernameElement = document.getElementById('username');
             fetch('/user')
