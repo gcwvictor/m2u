@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFromDatabase();
 });
 
-/*
 function handleDateChange(event) {
     const date = event.target.value;
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
@@ -95,7 +94,6 @@ function isFirstOfMonth(date) {
     const d = new Date(date);
     return d.getDate() === 1;
 }
-*/
 
 async function handleSubmit(event) {
     event.preventDefault();
@@ -145,7 +143,6 @@ function validateDate(date) {
     return selectedDate instanceof Date && !isNaN(selectedDate);
 }
 
-/*
 async function validateSequentialDates(date, unit_mesin) {
     const currentDate = new Date(date);
 
@@ -165,7 +162,6 @@ async function validateSequentialDates(date, unit_mesin) {
 
     return true;
 }
-*/
 
 async function calculateJumlahJKMHarian(date, unit_mesin) {
     const previousDayData = await getPreviousDayData(unit_mesin);
@@ -203,7 +199,6 @@ async function calculateJSB(date, unit_mesin) {
     return 'N/A';
 }
 
-/*
 function enableAllFields() {
     const fields = document.querySelectorAll('.formField input, .formField select');
     fields.forEach(field => {
@@ -226,7 +221,6 @@ function clearFields() {
         field.value = '';
     });
 }
-*/
 
 async function loadFromDatabase() {
     const unit_mesin = document.getElementById('unit_mesin_dropdown').value;

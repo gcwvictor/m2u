@@ -177,7 +177,6 @@ app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
   }
 });
 
-/*
 app.get('/getPreviousJkmData', ensureAuthenticated, async (req, res) => {
   try {
       const unitMesin = req.query.unit_mesin;
@@ -188,7 +187,6 @@ app.get('/getPreviousJkmData', ensureAuthenticated, async (req, res) => {
       res.status(400).json({ message: 'Error fetching previous JKM data', error: err.message });
   }
 });
-*/
 
 app.delete('/deleteJkmData/:id', ensureAuthenticated, async (req, res) => {
   try {
