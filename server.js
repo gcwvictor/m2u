@@ -61,7 +61,7 @@ const pemeliharaanSchema = new mongoose.Schema({
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const JkmData = mongoose.models.JkmData || mongoose.model('JkmData', jkmSchema);
 const GangguanData = mongoose.models.GangguanData || mongoose.model('GangguanData', gangguanSchema);
-const PemeliharaanData = mongoose.models.GangguanData || mongoose.model('PemeliharaanData', pemeliharaanSchema);
+const PemeliharaanData = mongoose.models.PemeliharaanData || mongoose.model('PemeliharaanData', pemeliharaanSchema);
 
 // Middleware
 app.use(bodyParser.json({ limit: '16mb', extended: true })); 
