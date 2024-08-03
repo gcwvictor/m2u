@@ -355,3 +355,10 @@ body{
     color: var(--danger-pressed);
     transition: 0.3s;
 }
+
+.textLoginAs {
+    font-family: var(--s-medium-font-family);
+    font-weight: var(--s-medium-font-weight);
+    font-size: var(--s-medium-font-size);
+    line-height: var(--s-medium-line-height);
+}
