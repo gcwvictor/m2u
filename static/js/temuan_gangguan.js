@@ -24,9 +24,10 @@ function setActiveTab() {
         document.getElementById('jkmButton').classList.add('active');
     } else if (url.includes('temuan_gangguan.html')) {
         document.getElementById('gangguanButton').classList.add('active');
+    } else if (url.includes('pemeliharaan.html')) {
+        document.getElementById('pemeliharaanButton').classList.add('active');
     }
 }
-
 window.onload = setActiveTab;
 
 document.addEventListener('DOMContentLoaded', () => {
