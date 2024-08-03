@@ -59,7 +59,7 @@ async function handleSubmit(event) {
         data.foto = base64Image.split(',')[1]; // Only send the base64 part to the server
 
         try {
-            const response = await fetch('/saveGangguanData', {
+            const response = await fetch('/savePemeliharaanData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -94,7 +94,7 @@ function toBase64(file) {
 
 async function displayTableData() {
     try {
-        const response = await fetch('/getGangguanData');
+        const response = await fetch('/getPemeliharaanData');
         if (!response.ok) {
             const errorData = await response.json();
             console.error(`Error fetching data: ${errorData.message}`);
@@ -117,9 +117,9 @@ async function displayTableData() {
             tanggalCell.textContent = item.tanggal;
             row.appendChild(tanggalCell);
 
-            const namaGangguanCell = document.createElement('td');
-            namaGangguanCell.textContent = item.nama_gangguan;
-            row.appendChild(namaGangguanCell);
+            const namaPemeliharaanCell = document.createElement('td');
+            namaPemeliharaanCell.textContent = item.nama_pemeliharaan;
+            row.appendChild(namaPemeliharaanCell);
 
             const unitMesinCell = document.createElement('td');
             unitMesinCell.textContent = item.unit_mesin;
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', displayTableData);
 
 async function deleteRow(id) {
     try {
-        const response = await fetch(`/deleteGangguanData/${id}`, {
+        const response = await fetch(`/deletePemeliharaanData/${id}`, {
             method: 'DELETE',
         });
 
@@ -177,12 +177,12 @@ document.getElementById('exportTable').addEventListener('click', function() {
 
 async function exportTableData() {
     try {
-        const response = await fetch('/getGangguanData');
+        const response = await fetch('/getPemeliharaanData');
         const data = await response.json();
 
         const exportData = data.map(item => ({
             'Tanggal': item.tanggal,
-            'Keterangan': item.nama_gangguan,
+            'Keterangan': item.nama_pemeliharaan,
             'Unit Mesin': item.unit_mesin,
             'Foto': item.foto ? `IMAGE("${item.foto}")` : 'No Image'
         }));

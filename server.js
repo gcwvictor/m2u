@@ -49,10 +49,19 @@ const gangguanSchema = new mongoose.Schema({
   foto: String,
 });
 
+const pemeliharaanSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  tanggal: String,
+  nama_pemeliharaan: String,
+  unit_mesin: String,
+  foto: String,
+});
+
 // Check if models already exist to prevent OverwriteModelError
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const JkmData = mongoose.models.JkmData || mongoose.model('JkmData', jkmSchema);
 const GangguanData = mongoose.models.GangguanData || mongoose.model('GangguanData', gangguanSchema);
+const PemeliharaanData = mongoose.models.GangguanData || mongoose.model('PemeliharaanData', pemeliharaanSchema);
 
 // Middleware
 app.use(bodyParser.json({ limit: '16mb', extended: true })); 
@@ -251,6 +260,50 @@ app.delete('/deleteGangguanData/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
+app.post('/savePemeliharaanData', ensureAuthenticated, async (req, res) => {
+  try {
+      let imageUrl = '';
+      if (req.body.foto) {
+          const base64Image = req.body.foto;
+          imageUrl = await uploadImageToImgur(base64Image);
+      }
+
+      const data = new PemeliharaanData({
+          ...req.body,
+          user: req.user._id,
+          foto: imageUrl,
+      });
+      await data.save();
+      res.status(201).json(data); // Return the saved data
+  } catch (err) {
+      console.error('Error saving data:', err);
+      res.status(400).json({ message: 'Error saving data', error: err.message });
+  }
+});
+
+app.get('/getPemeliharaanData', ensureAuthenticated, async (req, res) => {
+  try {
+      console.log('Fetching pemeliharaan data for user:', req.user._id);
+      const results = await PemeliharaanData.find({ user: req.user._id });
+      console.log('Pemeliharaan data fetched:', results);
+      res.status(200).json(results);
+  } catch (err) {
+      console.error('Error fetching data:', err);
+      res.status(400).json({ message: 'Error fetching data', error: err.message });
+  }
+});
+
+
+app.delete('/deletePemeliharaanData/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    await PemeliharaanData.findByIdAndDelete(req.params.id);
+    res.status(200).send('Data deleted');
+  } catch (err) {
+    console.error(err);
+    res.status(400).send('Error deleting data');
+  }
+});
+
 // Endpoint to get user info
 app.get('/user', ensureAuthenticated, (req, res) => {
   res.json({ username: req.user.username });
@@ -279,6 +332,10 @@ app.get('/jkm_harian.html', ensureAuthenticated, (req, res) => {
 
 app.get('/temuan_gangguan.html', ensureAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'temuan_gangguan.html'));
+});
+
+app.get('/pemeliharaan.html', ensureAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'pemeliharaan.html'));
 });
 
 app.listen(port, () => {
