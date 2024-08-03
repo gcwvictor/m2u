@@ -69,7 +69,7 @@ function handleDateChange(event) {
         jsbField.disabled = true;
 
         const unitMesin = document.querySelector('select[name="unit_mesin"]').value;
-        getLastDayData(unitMesin).then(previousData => {
+        getPreviousDayData(unitMesin).then(previousData => {
             if (previousData) {
                 jumlahJKMHarianField.value = previousData.jumlah_jkm_har || 0;
                 jsmoField.value = previousData.jsmo || 0;
@@ -83,8 +83,8 @@ function handleDateChange(event) {
     }
 }
 
-async function getLastDayData(unitMesin) {
-    const response = await fetch(`/getLastJkmData?unit_mesin=${unitMesin}`);
+async function getPreviousDayData(unitMesin) {
+    const response = await fetch(`/getPreviousJkmData?unit_mesin=${unitMesin}`);
     const data = await response.json();
 
     return data.length > 0 ? data[0] : null;
@@ -164,7 +164,7 @@ async function validateSequentialDates(date, unit_mesin) {
 }
 
 async function calculateJumlahJKMHarian(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(unit_mesin);
 
     if (previousDayData) {
         const previousJumlahJKMHarian = parseFloat(previousDayData.jumlah_jkm_har) || 0;
@@ -176,7 +176,7 @@ async function calculateJumlahJKMHarian(date, unit_mesin) {
 }
 
 async function calculateJSMO(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(unit_mesin);
 
     if (previousDayData) {
         const previousJSMO = parseFloat(previousDayData.jsmo) || 0;
@@ -188,7 +188,7 @@ async function calculateJSMO(date, unit_mesin) {
 }
 
 async function calculateJSB(date, unit_mesin) {
-    const previousDayData = await getLastDayData(unit_mesin);
+    const previousDayData = await getPreviousDayData(unit_mesin);
 
     if (previousDayData) {
         const previousJSB = parseFloat(previousDayData.jsb) || 0;
