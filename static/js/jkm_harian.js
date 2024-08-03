@@ -165,6 +165,7 @@ async function validateSequentialDates(date, unit_mesin) {
 
     return true;
 }
+*/
 
 async function calculateJumlahJKMHarian(date, unit_mesin) {
     const previousDayData = await getPreviousDayData(unit_mesin);
@@ -202,6 +203,7 @@ async function calculateJSB(date, unit_mesin) {
     return 'N/A';
 }
 
+/*
 function enableAllFields() {
     const fields = document.querySelectorAll('.formField input, .formField select');
     fields.forEach(field => {
