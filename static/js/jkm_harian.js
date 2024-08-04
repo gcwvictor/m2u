@@ -38,6 +38,100 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFromDatabase();
 });
 
+// Fungsi untuk menangani submit form
+function handleSubmit(event) {
+    event.preventDefault(); // Mencegah reload halaman
+
+    const form = document.getElementById('jkmForm');
+    const formData = new FormData(form);
+
+    fetch('/saveJkmData', {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data) {
+            alert('Data berhasil disimpan');
+            // Setelah berhasil menyimpan data, tampilkan data di tabel
+            displayTableData(data.unit_mesin);
+            form.reset(); // Reset form setelah submit
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Fungsi untuk menampilkan data di tabel
+function displayTableData(unit_mesin) {
+    fetch(`/getJkmData?unit_mesin=${unit_mesin}`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#dataTable tbody');
+            tableBody.innerHTML = ''; // Hapus isi tabel sebelumnya
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Buat elemen <td> untuk setiap kolom
+                const tanggal = document.createElement('td');
+                tanggal.textContent = item.tanggal;
+                row.appendChild(tanggal);
+
+                const jkmHarian = document.createElement('td');
+                jkmHarian.textContent = item.jkm_harian;
+                row.appendChild(jkmHarian);
+
+                const jumlahJkmHar = document.createElement('td');
+                jumlahJkmHar.textContent = item.jumlah_jkm_har;
+                row.appendChild(jumlahJkmHar);
+
+                const jsmo = document.createElement('td');
+                jsmo.textContent = item.jsmo;
+                row.appendChild(jsmo);
+
+                const jsb = document.createElement('td');
+                jsb.textContent = item.jsb;
+                row.appendChild(jsb);
+
+                const keterangan = document.createElement('td');
+                keterangan.textContent = item.keterangan;
+                row.appendChild(keterangan);
+
+                // Kolom untuk tindakan seperti mengedit atau menghapus data
+                const action = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'deleteButton';
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteButton.addEventListener('click', () => deleteData(item._id, unit_mesin));
+                action.appendChild(deleteButton);
+                row.appendChild(action);
+
+                // Tambahkan baris ke tabel
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+// Fungsi untuk menghapus data
+function deleteData(id, unit_mesin) {
+    fetch(`/deleteJkmData/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Data berhasil dihapus');
+            displayTableData(unit_mesin); // Refresh tabel setelah penghapusan
+        }
+    })
+    .catch(error => console.error('Error deleting data:', error));
+}
+
+
+/*
 function handleDateChange(event) {
     const date = event.target.value;
     const jumlahJKMHarianField = document.getElementById('jumlah_jkm_har');
@@ -342,3 +436,4 @@ document.addEventListener('DOMContentLoaded', () => {
         exportButton.addEventListener('click', exportAllData);
     }
 });
+*/
