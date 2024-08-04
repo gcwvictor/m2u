@@ -99,31 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menampilkan data di tabel
     function displayTableData(unit_mesin) {
-        fetch(`/getJkmData?unit_mesin=${unitMesin}`)
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('#dataTable tbody');
-            tableBody.innerHTML = ''; // Clear existing data
-
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.tanggal}</td>
-                    <td>${row.jkm_harian}</td>
-                    <td>${row.jumlah_jkm_har}</td>
-                    <td>${row.jsmo}</td>
-                    <td>${row.jsb}</td>
-                    <td>${row.keterangan}</td>
-                    <td><button class="deleteButton" onclick="deleteData('${row._id}')"><i class="fas fa-trash-alt"></i></button></td>
-                `;
-                tableBody.appendChild(tr);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-        
-        /*
         fetch(`/getJkmData?unit_mesin=${unit_mesin}`)
             .then(response => response.json())
             .then(data => {
@@ -172,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             })
             .catch(error => console.error('Error fetching data:', error));
-        */
     }
 
     // Fungsi untuk menghapus data
