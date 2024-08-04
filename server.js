@@ -169,7 +169,7 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
   try {
-    const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin });
+    const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin }).sort({ tanggal: 1 });
     res.status(200).json(results);
   } catch (err) {
     console.error(err);
