@@ -158,7 +158,8 @@ app.get('/logout', (req, res) => {
 // JKM Harian CRUD
 app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   try {
-    const { tanggal, unit_mesin } = req.body;
+    const { tanggal, unit_mesin, jkm_harian } = req.body;
+
     // Memeriksa apakah data dengan tanggal dan unit_mesin yang sama sudah ada
     const existingData = await JkmData.findOne({ 
         user: req.user._id, 
@@ -167,43 +168,34 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
     });
 
     if (existingData) {
-        return res.status(400).json({ message: 'Data mesin pada tanggal ini sudah ada. Silakan pilih tanggal yang berbeda atau hapus data yang sudah ada.' });
+        return res.status(400).json({ message: 'Tanggal untuk unit mesin ini sudah ada. Mohon pilih tanggal yang berbeda.' });
     }
 
-    // Ambil data dari tanggal sebelumnya
+    // Mengambil data dari tanggal sebelumnya
     const previousData = await JkmData.findOne({ 
-      user: req.user._id, 
-      unit_mesin: unit_mesin 
-    }).sort({ tanggal: -1 }); // Mengambil data terbaru sebelum tanggal ini
+        user: req.user._id, 
+        unit_mesin: unit_mesin 
+    }).sort({ tanggal: -1 }); // Mengambil data terbaru berdasarkan tanggal
 
-    let jumlah_jkm_har = 0;
-    let jsmo = 0;
-    let jsb = 0;
+    // Menghitung nilai baru
+    const jumlah_jkm_har = previousData ? previousData.jumlah_jkm_har + jkm_harian : jkm_harian;
+    const jsmo = previousData ? previousData.jsmo + jkm_harian : jkm_harian;
+    const jsb = previousData ? previousData.jsb + jkm_harian : jkm_harian;
 
-    if (previousData) {
-        jumlah_jkm_har = previousData.jumlah_jkm_har + jkm_harian;
-        jsmo = previousData.jsmo + jkm_harian;
-        jsb = previousData.jsb + jkm_harian;
-    } else {
-        jumlah_jkm_har = jkm_harian;
-        jsmo = jkm_harian;
-        jsb = jkm_harian;
-    }
-
-    // Jika tidak ada data yang sama, simpan data baru
-    const data = new JkmData({ 
-        ...req.body, 
+    // Menyimpan data baru
+    const data = new JkmData({
+        ...req.body,
         user: req.user._id,
-        jumlah_jkm_har: jumlah_jkm_har,
-        jsmo: jsmo,
-        jsb: jsb
+        jumlah_jkm_har,
+        jsmo,
+        jsb
     });
+
     await data.save();
     res.status(201).json(data);
-  }
-  catch (err) {
-    console.error('Error saving data:', err);
-    res.status(400).send('Error saving data');
+  } catch (err) {
+      console.error('Error saving data:', err);
+      res.status(400).send('Error saving data');
   }
 });
 
