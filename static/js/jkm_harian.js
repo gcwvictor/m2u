@@ -32,103 +32,111 @@ window.onload = setActiveTab;
 
 document.addEventListener('DOMContentLoaded', () => {
     const unitMesinDropdown = document.getElementById('unit_mesin_dropdown');
-    if (unitMesinDropdown) {
-        unitMesinDropdown.addEventListener('change', loadFromDatabase);
-    }
-    loadFromDatabase();
-});
+    const unitMesinField = document.getElementById('unit_mesin');
 
-// Fungsi untuk menangani submit form
-function handleSubmit(event) {
-    event.preventDefault(); // Mencegah reload halaman
+    // Tampilkan data awal berdasarkan pilihan dropdown
+    displayTableData(unitMesinDropdown.value);
 
-    const form = document.getElementById('jkmForm');
-    const formData = new FormData(form);
+    // Event listener untuk mengubah tampilan tabel saat dropdown unit_mesin_dropdown berubah
+    unitMesinDropdown.addEventListener('change', () => {
+        displayTableData(unitMesinDropdown.value);
+    });
 
-    fetch('/saveJkmData', {
-        method: 'POST',
-        body: JSON.stringify(Object.fromEntries(formData)),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data) {
-            alert('Data berhasil disimpan');
-            // Setelah berhasil menyimpan data, tampilkan data di tabel
-            displayTableData(data.unit_mesin);
-            form.reset(); // Reset form setelah submit
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
+    // Fungsi untuk menangani submit form
+    function handleSubmit(event) {
+        event.preventDefault(); // Mencegah reload halaman
 
-// Fungsi untuk menampilkan data di tabel
-function displayTableData(unit_mesin) {
-    fetch(`/getJkmData?unit_mesin=${unit_mesin}`)
+        const form = document.getElementById('jkmForm');
+        const formData = new FormData(form);
+
+        fetch('/saveJkmData', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.querySelector('#dataTable tbody');
-            tableBody.innerHTML = ''; // Hapus isi tabel sebelumnya
-
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                
-                // Buat elemen <td> untuk setiap kolom
-                const tanggal = document.createElement('td');
-                tanggal.textContent = item.tanggal;
-                row.appendChild(tanggal);
-
-                const jkmHarian = document.createElement('td');
-                jkmHarian.textContent = item.jkm_harian;
-                row.appendChild(jkmHarian);
-
-                const jumlahJkmHar = document.createElement('td');
-                jumlahJkmHar.textContent = item.jumlah_jkm_har;
-                row.appendChild(jumlahJkmHar);
-
-                const jsmo = document.createElement('td');
-                jsmo.textContent = item.jsmo;
-                row.appendChild(jsmo);
-
-                const jsb = document.createElement('td');
-                jsb.textContent = item.jsb;
-                row.appendChild(jsb);
-
-                const keterangan = document.createElement('td');
-                keterangan.textContent = item.keterangan;
-                row.appendChild(keterangan);
-
-                // Kolom untuk tindakan seperti mengedit atau menghapus data
-                const action = document.createElement('td');
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'deleteButton';
-                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                deleteButton.addEventListener('click', () => deleteData(item._id, unit_mesin));
-                action.appendChild(deleteButton);
-                row.appendChild(action);
-
-                // Tambahkan baris ke tabel
-                tableBody.appendChild(row);
-            });
+            if (data) {
+                alert('Data berhasil disimpan');
+                displayTableData(unitMesinDropdown.value); // Tampilkan data berdasarkan dropdown unit_mesin_dropdown
+                form.reset(); // Reset form setelah submit
+            }
         })
-        .catch(error => console.error('Error fetching data:', error));
-}
+        .catch(error => console.error('Error:', error));
+    }
 
-// Fungsi untuk menghapus data
-function deleteData(id, unit_mesin) {
-    fetch(`/deleteJkmData/${id}`, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (response.ok) {
-            alert('Data berhasil dihapus');
-            displayTableData(unit_mesin); // Refresh tabel setelah penghapusan
-        }
-    })
-    .catch(error => console.error('Error deleting data:', error));
-}
+    // Fungsi untuk menampilkan data di tabel
+    function displayTableData(unit_mesin) {
+        fetch(`/getJkmData?unit_mesin=${unit_mesin}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#dataTable tbody');
+                tableBody.innerHTML = ''; // Hapus isi tabel sebelumnya
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Buat elemen <td> untuk setiap kolom
+                    const tanggal = document.createElement('td');
+                    tanggal.textContent = item.tanggal;
+                    row.appendChild(tanggal);
+
+                    const jkmHarian = document.createElement('td');
+                    jkmHarian.textContent = item.jkm_harian;
+                    row.appendChild(jkmHarian);
+
+                    const jumlahJkmHar = document.createElement('td');
+                    jumlahJkmHar.textContent = item.jumlah_jkm_har;
+                    row.appendChild(jumlahJkmHar);
+
+                    const jsmo = document.createElement('td');
+                    jsmo.textContent = item.jsmo;
+                    row.appendChild(jsmo);
+
+                    const jsb = document.createElement('td');
+                    jsb.textContent = item.jsb;
+                    row.appendChild(jsb);
+
+                    const keterangan = document.createElement('td');
+                    keterangan.textContent = item.keterangan;
+                    row.appendChild(keterangan);
+
+                    // Kolom untuk tindakan seperti mengedit atau menghapus data
+                    const action = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'deleteButton';
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteButton.addEventListener('click', () => deleteData(item._id, unit_mesin));
+                    action.appendChild(deleteButton);
+                    row.appendChild(action);
+
+                    // Tambahkan baris ke tabel
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Fungsi untuk menghapus data
+    function deleteData(id, unit_mesin) {
+        fetch(`/deleteJkmData/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Data berhasil dihapus');
+                displayTableData(unit_mesin); // Refresh tabel setelah penghapusan
+            }
+        })
+        .catch(error => console.error('Error deleting data:', error));
+    }
+
+    // Tambahkan event listener untuk handleSubmit saat form di-submit
+    document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
+});
+
 
 
 /*
