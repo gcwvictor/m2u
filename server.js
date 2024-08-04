@@ -178,9 +178,9 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
     }).sort({ tanggal: -1 }); // Mengambil data terbaru berdasarkan tanggal
 
     // Menghitung nilai baru
-    const jumlah_jkm_har = previousData ? previousData.jumlah_jkm_har + jkm_harian : jkm_harian;
-    const jsmo = previousData ? previousData.jsmo + jkm_harian : jkm_harian;
-    const jsb = previousData ? previousData.jsb + jkm_harian : jkm_harian;
+    const jumlah_jkm_har = previousData.jumlah_jkm_har + jkm_harian;
+    const jsmo = previousData.jsmo + jkm_harian;
+    const jsb = previousData.jsb + jkm_harian;
 
     // Menyimpan data baru
     const data = new JkmData({
