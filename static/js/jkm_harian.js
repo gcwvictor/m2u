@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle successful submission
             alert('Data berhasil disimpan');
             displayTableData(document.getElementById('unit_mesin').value);
+            form.reset(); // Reset form setelah submit
         })
         .catch(error => {
             // Handle errors
