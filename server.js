@@ -170,8 +170,34 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
         return res.status(400).json({ message: 'Data mesin pada tanggal ini sudah ada. Silakan pilih tanggal yang berbeda atau hapus data yang sudah ada.' });
     }
 
+    // Ambil data dari tanggal sebelumnya
+    const previousData = await JkmData.findOne({ 
+      user: req.user._id, 
+      unit_mesin: unit_mesin 
+    }).sort({ tanggal: -1 }); // Mengambil data terbaru sebelum tanggal ini
+
+    let jumlah_jkm_har = 0;
+    let jsmo = 0;
+    let jsb = 0;
+
+    if (previousData) {
+        jumlah_jkm_har = previousData.jumlah_jkm_har + jkm_harian;
+        jsmo = previousData.jsmo + jkm_harian;
+        jsb = previousData.jsb + jkm_harian;
+    } else {
+        jumlah_jkm_har = jkm_harian;
+        jsmo = jkm_harian;
+        jsb = jkm_harian;
+    }
+
     // Jika tidak ada data yang sama, simpan data baru
-    const data = new JkmData({ ...req.body, user: req.user._id });
+    const data = new JkmData({ 
+        ...req.body, 
+        user: req.user._id,
+        jumlah_jkm_har: jumlah_jkm_har,
+        jsmo: jsmo,
+        jsb: jsb
+    });
     await data.save();
     res.status(201).json(data);
   }

@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('jkmForm');
         const formData = new FormData(form);
 
+        formData.delete('jumlah_jkm_har');
+        formData.delete('jsmo');
+        formData.delete('jsb');
+
         fetch('/saveJkmData', {
             method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData)),
