@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (response.ok) {
                 alert('Data berhasil disimpan');
                 // Refresh atau perbarui tampilan tabel jika perlu
-                displayTableData(data.unit_mesin);
+                displayTableData(unitMesinDropdown.value);
             } else {
                 alert('Terjadi kesalahan saat menyimpan data');
             }
