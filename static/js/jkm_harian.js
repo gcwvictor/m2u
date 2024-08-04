@@ -44,34 +44,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi untuk menangani submit form
     function handleSubmit(event) {
-        event.preventDefault(); // Mencegah reload halaman
-
+        event.preventDefault();
+    
         const form = document.getElementById('jkmForm');
         const formData = new FormData(form);
 
-        try {
-            const response = await fetch('/saveJkmData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-    
-            if (response.status === 409) {
-                const result = await response.json();
-                alert(result.message); // Tampilkan pesan error dari server
-            } else if (response.ok) {
-                alert('Data berhasil disimpan');
-                // Refresh atau perbarui tampilan tabel jika perlu
-                displayTableData(unitMesinDropdown.value);
-            } else {
-                alert('Terjadi kesalahan saat menyimpan data');
+        fetch('/saveJkmData', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
             }
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('Terjadi kesalahan saat menyimpan data');
-        }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(err => {
+                    throw new Error(err.message);
+                });
+            }
+        })
+        .then(data => {
+            // Handle successful submission
+            alert('Data berhasil disimpan');
+            displayTableData(document.getElementById('unit_mesin').value);
+        })
+        .catch(error => {
+            // Handle errors
+            alert(error.message);
+        });
 
         /*
         fetch('/saveJkmData', {
