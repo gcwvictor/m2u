@@ -177,10 +177,16 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
         unit_mesin: unit_mesin 
     }).sort({ tanggal: -1 }); // Mengambil data terbaru berdasarkan tanggal
 
+    // Mengkonversi nilai sebelumnya dan inputan ke tipe angka
+    const previousJumlahJkmHar = previousData ? Number(previousData.jumlah_jkm_har) : 0;
+    const previousJsmo = previousData ? Number(previousData.jsmo) : 0;
+    const previousJsb = previousData ? Number(previousData.jsb) : 0;
+    const jkmHarianValue = Number(jkm_harian);
+
     // Menghitung nilai baru
-    const jumlah_jkm_har = previousData.jumlah_jkm_har + jkm_harian;
-    const jsmo = previousData.jsmo + jkm_harian;
-    const jsb = previousData.jsb + jkm_harian;
+    const jumlah_jkm_har = previousJumlahJkmHar + jkmHarianValue;
+    const jsmo = previousJsmo + jkmHarianValue;
+    const jsb = previousJsb + jkmHarianValue;
 
     // Menyimpan data baru
     const data = new JkmData({
