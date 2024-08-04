@@ -158,8 +158,7 @@ app.get('/logout', (req, res) => {
 // JKM Harian CRUD
 app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   try {
-    const { tanggal, unit_mesin, jkm_harian } = req.body;
-
+    const { tanggal, unit_mesin } = req.body;
     // Memeriksa apakah data dengan tanggal dan unit_mesin yang sama sudah ada
     const existingData = await JkmData.findOne({ 
         user: req.user._id, 
@@ -168,40 +167,17 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
     });
 
     if (existingData) {
-        return res.status(400).json({ message: 'Tanggal untuk unit mesin ini sudah ada. Mohon pilih tanggal yang berbeda.' });
+        return res.status(400).json({ message: 'Data mesin pada tanggal ini sudah ada. Silakan pilih tanggal yang berbeda atau hapus data yang sudah ada.' });
     }
 
-    // Mengambil data dari tanggal sebelumnya
-    const previousData = await JkmData.findOne({ 
-        user: req.user._id, 
-        unit_mesin: unit_mesin 
-    }).sort({ tanggal: -1 }); // Mengambil data terbaru berdasarkan tanggal
-
-    // Mengkonversi nilai sebelumnya dan inputan ke tipe angka
-    const previousJumlahJkmHar = previousData ? Number(previousData.jumlah_jkm_har) : 0;
-    const previousJsmo = previousData ? Number(previousData.jsmo) : 0;
-    const previousJsb = previousData ? Number(previousData.jsb) : 0;
-    const jkmHarianValue = Number(jkm_harian);
-
-    // Menghitung nilai baru
-    const jumlah_jkm_har = previousJumlahJkmHar + jkmHarianValue;
-    const jsmo = previousJsmo + jkmHarianValue;
-    const jsb = previousJsb + jkmHarianValue;
-
-    // Menyimpan data baru
-    const data = new JkmData({
-        ...req.body,
-        user: req.user._id,
-        jumlah_jkm_har,
-        jsmo,
-        jsb
-    });
-
+    // Jika tidak ada data yang sama, simpan data baru
+    const data = new JkmData({ ...req.body, user: req.user._id });
     await data.save();
     res.status(201).json(data);
-  } catch (err) {
-      console.error('Error saving data:', err);
-      res.status(400).send('Error saving data');
+  }
+  catch (err) {
+    console.error('Error saving data:', err);
+    res.status(400).send('Error saving data');
   }
 });
 

@@ -45,11 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fungsi untuk menangani submit form
     function handleSubmit(event) {
         event.preventDefault();
-        event.preventDefault();
     
         const form = document.getElementById('jkmForm');
         const formData = new FormData(form);
-        
+
         fetch('/saveJkmData', {
             method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData)),
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle successful submission
             alert('Data berhasil disimpan');
             displayTableData(document.getElementById('unit_mesin').value);
-            form.reset(); //clear form after success
+            form.reset(); // Reset form setelah submit
         })
         .catch(error => {
             // Handle errors
