@@ -49,6 +49,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('jkmForm');
         const formData = new FormData(form);
 
+        try {
+            const response = await fetch('/saveJkmData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+    
+            if (response.status === 409) {
+                const result = await response.json();
+                alert(result.message); // Tampilkan pesan error dari server
+            } else if (response.ok) {
+                alert('Data berhasil disimpan');
+                // Refresh atau perbarui tampilan tabel jika perlu
+                displayTableData(data.unit_mesin);
+            } else {
+                alert('Terjadi kesalahan saat menyimpan data');
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            alert('Terjadi kesalahan saat menyimpan data');
+        }
+
+        /*
         fetch('/saveJkmData', {
             method: 'POST',
             body: JSON.stringify(Object.fromEntries(formData)),
@@ -65,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(error => console.error('Error:', error));
+        */
     }
 
     // Fungsi untuk menampilkan data di tabel

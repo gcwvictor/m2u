@@ -157,14 +157,24 @@ app.get('/logout', (req, res) => {
 
 // JKM Harian CRUD
 app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
-  const data = new JkmData({ ...req.body, user: req.user._id });
+  const { tanggal, unit_mesin } = req.body;
   try {
+    // Periksa apakah sudah ada data dengan tanggal dan unit_mesin yang sama
+    const existingData = await JkmData.findOne({ user: req.user._id, tanggal: tanggal, unit_mesin: unit_mesin });
+
+    if (existingData) {
+        // Jika data sudah ada, kirimkan respons error
+        return res.status(409).json({ message: 'Data tanggal yang dipilih sudah diisi untuk mesin ini.' });
+    }
+
+    // Jika tidak ada data yang sama, lanjutkan menyimpan data baru
+    const data = new JkmData({ ...req.body, user: req.user._id });
     await data.save();
-    res.status(201).json(data); // Return the saved data
-  } catch (err) {
-    console.error(err);
+    res.status(201).json(data);
+} catch (err) {
+    console.error('Error saving data:', err);
     res.status(400).send('Error saving data');
-  }
+}
 });
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
