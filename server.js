@@ -201,8 +201,7 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
     const data = new JkmData({ ...req.body, user: req.user._id });
     await data.save();
     res.status(201).json(data);
-  }
-  catch (err) {
+  } catch (err) {
     console.error('Error saving data:', err);
     res.status(400).send('Error saving data');
   }
