@@ -31,8 +31,39 @@ function setActiveTab() {
 window.onload = setActiveTab;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const tanggalField = document.getElementById('tanggal');
+    const jumlahJkmHarField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
     const unitMesinDropdown = document.getElementById('unit_mesin_dropdown');
     const unitMesinField = document.getElementById('unit_mesin');
+
+    function toggleFieldsBasedOnDate() {
+        const selectedDate = new Date(tanggalField.value);
+        const isFirstDayOfMonth = selectedDate.getDate() === 1;
+
+        if (isFirstDayOfMonth) {
+            // Jika tanggal 1, wajib mengisi Jumlah JKM HAR, JSMO, dan JSB
+            jumlahJkmHarField.disabled = false;
+            jumlahJkmHarField.required = true;
+            jsmoField.disabled = false;
+            jsmoField.required = true;
+            jsbField.disabled = false;
+            jsbField.required = true;
+        } else {
+            // Jika bukan tanggal 1, field Jumlah JKM HAR, JSMO, dan JSB di-disable
+            jumlahJkmHarField.disabled = true;
+            jumlahJkmHarField.required = false;
+            jsmoField.disabled = true;
+            jsmoField.required = false;
+            jsbField.disabled = true;
+            jsbField.required = false;
+        }
+    }
+
+    toggleFieldsBasedOnDate();
+
+    tanggalField.addEventListener('change', toggleFieldsBasedOnDate);
 
     // Tampilkan data awal berdasarkan pilihan dropdown
     displayTableData(unitMesinDropdown.value);
