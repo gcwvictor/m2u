@@ -158,7 +158,8 @@ app.get('/logout', (req, res) => {
 // JKM Harian CRUD
 app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   try {
-    const { tanggal, unit_mesin } = req.body;
+    const { tanggal, unit_mesin, jkm_harian } = req.body;
+    //const { tanggal, unit_mesin } = req.body;
     // Memeriksa apakah data dengan tanggal dan unit_mesin yang sama sudah ada
     const existingData = await JkmData.findOne({ 
         user: req.user._id, 
