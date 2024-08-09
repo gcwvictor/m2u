@@ -100,30 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle successful submission
             alert('Data berhasil disimpan');
             displayTableData(document.getElementById('unit_mesin').value);
+            form.reset(); //clear form setelah submit
         })
         .catch(error => {
             // Handle errors
             alert(error.message);
         });
-
-        /*
-        fetch('/saveJkmData', {
-            method: 'POST',
-            body: JSON.stringify(Object.fromEntries(formData)),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data) {
-                alert('Data berhasil disimpan');
-                displayTableData(unitMesinDropdown.value); // Tampilkan data berdasarkan dropdown unit_mesin_dropdown
-                form.reset(); // Reset form setelah submit
-            }
-        })
-        .catch(error => console.error('Error:', error));
-        */
     }
 
     // Fungsi untuk menampilkan data di tabel

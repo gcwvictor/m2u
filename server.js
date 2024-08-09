@@ -172,26 +172,41 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
         return res.status(400).json({ message: 'Data mesin pada tanggal ini sudah ada. Silakan pilih tanggal yang berbeda atau hapus data yang sudah ada.' });
     }
 
-    // Mendapatkan tanggal sebelumnya
-    const previousDate = new Date(tanggal);
-    previousDate.setDate(previousDate.getDate() - 1);
-    const previousDateString = previousDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+    // Parse tanggal untuk mendapatkan hari dalam bulan
+    const inputDate = new Date(tanggal);
+    const dayOfMonth = inputDate.getDate();
 
-    // Memeriksa apakah data pada tanggal sebelumnya ada
-    const previousData = await JkmData.findOne({
-        user: userId,
-        unit_mesin: unit_mesin,
-        tanggal: previousDateString
-    });
+    // Jika bukan tanggal 1, cek data pada hari sebelumnya
+    if (dayOfMonth !== 1) {
+      const previousDate = new Date(tanggal);
+      previousDate.setDate(inputDate.getDate() - 1);
+      const previousDateString = previousDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
 
-    if (!previousData) {
-        return res.status(400).json({ message: `Data pada tanggal ${previousDateString} belum ada. Harap mengisi data pada tanggal tersebut terlebih dahulu.` });
+      // Memeriksa apakah data pada tanggal sebelumnya ada
+      const previousData = await JkmData.findOne({
+          user: userId,
+          unit_mesin: unit_mesin,
+          tanggal: previousDateString
+      });
+
+      if (!previousData) {
+          return res.status(400).json({ message: `Data pada tanggal ${previousDateString} belum ada. Harap mengisi data pada tanggal tersebut terlebih dahulu.` });
+      }
+
+      // Lakukan perhitungan jika data pada hari sebelumnya ada
+      var jumlah_jkm_har = parseFloat(previousData.jumlah_jkm_har) + parseFloat(jkm_harian);
+      var jsmo = parseFloat(previousData.jsmo) + parseFloat(jkm_harian);
+      var jsb = parseFloat(previousData.jsb) + parseFloat(jkm_harian);
+    } else {
+      // Jika tanggal 1, pengguna wajib mengisi semua field yang diperlukan
+      var jumlah_jkm_har = parseFloat(req.body.jumlah_jkm_har);
+      var jsmo = parseFloat(req.body.jsmo);
+      var jsb = parseFloat(req.body.jsb);
+
+      if (isNaN(jumlah_jkm_har) || isNaN(jsmo) || isNaN(jsb)) {
+        return res.status(400).json({ message: 'Field Jumlah JKM HAR, JSMO, dan JSB wajib diisi untuk tanggal 1.' });
+      }
     }
-
-    // Lakukan perhitungan jika data pada hari sebelumnya ada
-    let jumlah_jkm_har = parseFloat(previousData.jumlah_jkm_har) + parseFloat(jkm_harian);
-    let jsmo = parseFloat(previousData.jsmo) + parseFloat(jkm_harian);
-    let jsb = parseFloat(previousData.jsb) + parseFloat(jkm_harian);
 
     // Simpan data baru
     const data = new JkmData({
