@@ -159,49 +159,52 @@ app.get('/logout', (req, res) => {
 app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
   try {
     const { tanggal, unit_mesin, jkm_harian } = req.body;
-    //const { tanggal, unit_mesin } = req.body;
+    const userId = req.user._id;
+
     // Memeriksa apakah data dengan tanggal dan unit_mesin yang sama sudah ada
     const existingData = await JkmData.findOne({ 
-        user: req.user._id, 
-        tanggal: tanggal, 
-        unit_mesin: unit_mesin 
+      user: userId, 
+      tanggal: tanggal, 
+      unit_mesin: unit_mesin 
     });
 
     if (existingData) {
         return res.status(400).json({ message: 'Data mesin pada tanggal ini sudah ada. Silakan pilih tanggal yang berbeda atau hapus data yang sudah ada.' });
     }
 
-    // Mendapatkan data terakhir berdasarkan tanggal untuk unit mesin yang sama
+    // Mendapatkan tanggal sebelumnya
+    const previousDate = new Date(tanggal);
+    previousDate.setDate(previousDate.getDate() - 1);
+    const previousDateString = previousDate.toISOString().split('T')[0]; // Format YYYY-MM-DD
+
+    // Memeriksa apakah data pada tanggal sebelumnya ada
     const previousData = await JkmData.findOne({
-      user: req.user._id,
-      unit_mesin: unit_mesin
-    }).sort({ tanggal: -1 });
-
-    let jumlah_jkm_har = jkm_harian;
-    let jsmo = jkm_harian;
-    let jsb = jkm_harian;
-
-    // Jika ada data sebelumnya, lakukan perhitungan
-    if (previousData) {
-      jumlah_jkm_har = parseFloat(previousData.jumlah_jkm_har) + parseFloat(jkm_harian);
-      jsmo = parseFloat(previousData.jsmo) + parseFloat(jkm_harian);
-      jsb = parseFloat(previousData.jsb) + parseFloat(jkm_harian);
-    }
-
-    // Simpan data baru dengan hasil perhitungan
-    const data = new JkmData({
-      user: req.user._id,
-      tanggal: tanggal,
-      unit_mesin: unit_mesin,
-      jkm_harian: jkm_harian,
-      jumlah_jkm_har: jumlah_jkm_har,
-      jsmo: jsmo,
-      jsb: jsb,
-      keterangan: req.body.keterangan
+        user: userId,
+        unit_mesin: unit_mesin,
+        tanggal: previousDateString
     });
 
-    // Jika tidak ada data yang sama, simpan data baru
-    //const data = new JkmData({ ...req.body, user: req.user._id });
+    if (!previousData) {
+        return res.status(400).json({ message: `Data pada tanggal ${previousDateString} belum ada. Harap mengisi data pada tanggal tersebut terlebih dahulu.` });
+    }
+
+    // Lakukan perhitungan jika data pada hari sebelumnya ada
+    let jumlah_jkm_har = parseFloat(previousData.jumlah_jkm_har) + parseFloat(jkm_harian);
+    let jsmo = parseFloat(previousData.jsmo) + parseFloat(jkm_harian);
+    let jsb = parseFloat(previousData.jsb) + parseFloat(jkm_harian);
+
+    // Simpan data baru
+    const data = new JkmData({
+        user: userId,
+        tanggal: tanggal,
+        unit_mesin: unit_mesin,
+        jkm_harian: jkm_harian,
+        jumlah_jkm_har: jumlah_jkm_har,
+        jsmo: jsmo,
+        jsb: jsb,
+        keterangan: req.body.keterangan
+    });
+
     await data.save();
     res.status(201).json(data);
   }
