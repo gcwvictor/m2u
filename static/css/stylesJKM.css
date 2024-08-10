@@ -362,3 +362,22 @@ body{
     font-size: var(--s-medium-font-size);
     line-height: var(--s-medium-line-height);
 }
+
+.btnMonthNav {
+    background-color: var(--neutral-10);
+    color: var(--neutral-100);
+    border: none;
+    border-radius: 144px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+  
+.btnMonthNav:hover {
+    background-color: var(--neutral-20);
+    transition: 0.3s;
+}
+
+.btnMonthNav:active {
+    background-color: var(--neutral-50);
+    transition: 0.3s;
+}
