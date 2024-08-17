@@ -363,6 +363,13 @@ body{
     line-height: var(--s-medium-line-height);
 }
 
+.monthNav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+}
+
 .btnMonthNav {
     background-color: var(--neutral-10);
     color: var(--neutral-100);
