@@ -368,6 +368,7 @@ body{
     color: var(--neutral-100);
     border: none;
     border-radius: 144px;
+    padding: 4px;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -380,4 +381,11 @@ body{
 .btnMonthNav:active {
     background-color: var(--neutral-50);
     transition: 0.3s;
+}
+
+.monthLabel {
+    font-family: var(--s-semibold-font-family);
+    font-weight: var(--s-semibold-font-weight);
+    font-size: var(--s-semibold-font-size);
+    line-height: var(--s-semibold-line-height);
 }
