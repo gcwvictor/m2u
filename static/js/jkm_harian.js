@@ -30,6 +30,69 @@ function setActiveTab() {
 }
 window.onload = setActiveTab;
 
+let currentDate = new Date();
+
+document.getElementById('prevMonthBtn').addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateMonthYearDisplay();
+    loadTableData();
+});
+
+document.getElementById('nextMonthBtn').addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateMonthYearDisplay();
+    loadTableData();
+});
+
+function updateMonthYearDisplay() {
+    const monthYearText = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    document.getElementById('currentMonthYear').innerText = monthYearText;
+}
+
+function loadTableData() {
+    const month = currentDate.getMonth() + 1; // getMonth() returns 0-11
+    const year = currentDate.getFullYear();
+
+    // Buat request ke server untuk mengambil data berdasarkan bulan dan tahun
+    fetch(`/getJkmDataByMonth?month=${month}&year=${year}`)
+        .then(response => response.json())
+        .then(data => {
+            renderTable(data);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+}
+
+function renderTable(data) {
+    const table = document.getElementById('dataTable');
+    table.innerHTML = ''; // Kosongkan tabel sebelum mengisi data baru
+
+    // Buat header tabel
+    const header = table.createTHead().insertRow();
+    ['Tanggal', 'Unit Mesin', 'JKM Harian', 'Jumlah JKM HAR', 'JSMO', 'JSB', 'Keterangan'].forEach(text => {
+        const th = document.createElement('th');
+        th.innerText = text;
+        header.appendChild(th);
+    });
+
+    // Isi tabel dengan data
+    data.forEach(row => {
+        const tr = table.insertRow();
+        tr.insertCell(0).innerText = row.tanggal;
+        tr.insertCell(1).innerText = row.unit_mesin;
+        tr.insertCell(2).innerText = row.jkm_harian;
+        tr.insertCell(3).innerText = row.jumlah_jkm_har;
+        tr.insertCell(4).innerText = row.jsmo;
+        tr.insertCell(5).innerText = row.jsb;
+        tr.insertCell(6).innerText = row.keterangan;
+    });
+}
+
+// Inisialisasi tampilan bulan tahun dan load data pertama kali
+updateMonthYearDisplay();
+loadTableData();
+
 document.addEventListener('DOMContentLoaded', () => {
     const tanggalField = document.getElementById('tanggal');
     const jumlahJkmHarField = document.getElementById('jumlah_jkm_har');
