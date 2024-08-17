@@ -30,84 +30,6 @@ function setActiveTab() {
 }
 window.onload = setActiveTab;
 
-let currentMonth = new Date().getMonth(); // Mulai dari 0 (Januari)
-let currentYear = new Date().getFullYear();
-
-// Fungsi untuk memperbarui tampilan bulan dan tahun
-function updateMonthDisplay() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
-}
-
-// Fungsi untuk mengambil dan menampilkan data berdasarkan unit mesin, bulan dan tahun
-async function fetchAndDisplayData() {
-    const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
-
-    try {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}&month=${currentMonth}&year=${currentYear}`);
-        const data = await response.json();
-
-        const tbody = document.getElementById('dataTable').querySelector('tbody');
-        tbody.innerHTML = '';
-
-        data.forEach(entry => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${new Date(entry.tanggal).toLocaleDateString()}</td>
-                <td>${entry.jkm_harian}</td>
-                <td>${entry.jumlah_jkm_har}</td>
-                <td>${entry.jsmo}</td>
-                <td>${entry.jsb}</td>
-                <td>${entry.keterangan || ''}</td>
-                <td><button onclick="deleteRow(${entry._id})">Delete</button></td>
-            `;
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-// Fungsi untuk delete row (contoh, tambahkan implementasi server)
-function deleteRow(id) {
-    // Implementasi delete di sisi server
-    console.log(`Delete row with id: ${id}`);
-}
-
-// Event listener untuk tombol navigasi bulan
-document.getElementById('prevMonthBtn').addEventListener('click', () => {
-    if (currentMonth === 0) {
-        currentMonth = 11;
-        currentYear--;
-    } else {
-        currentMonth--;
-    }
-    updateMonthDisplay();
-    fetchAndDisplayData();
-});
-
-document.getElementById('nextMonthBtn').addEventListener('click', () => {
-    if (currentMonth === 11) {
-        currentMonth = 0;
-        currentYear++;
-    } else {
-        currentMonth++;
-    }
-    updateMonthDisplay();
-    fetchAndDisplayData();
-});
-
-// Event listener untuk dropdown unit mesin
-document.getElementById('unit_mesin_dropdown').addEventListener('change', () => {
-    fetchAndDisplayData();
-});
-
-// Inisialisasi tampilan saat halaman pertama kali dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    updateMonthDisplay();
-    fetchAndDisplayData();
-});
-
 document.addEventListener('DOMContentLoaded', () => {
     const tanggalField = document.getElementById('tanggal');
     const jumlahJkmHarField = document.getElementById('jumlah_jkm_har');
@@ -115,6 +37,182 @@ document.addEventListener('DOMContentLoaded', () => {
     const jsbField = document.getElementById('jsb');
     const unitMesinDropdown = document.getElementById('unit_mesin_dropdown');
     const unitMesinField = document.getElementById('unit_mesin');
+    
+    let currentMonth = new Date().getMonth(); // Mulai dari 0 (Januari)
+    let currentYear = new Date().getFullYear();
+
+    function updateMonthDisplay() {
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    }
+
+    function toggleFieldsBasedOnDate() {
+        const selectedDate = new Date(tanggalField.value);
+        const isFirstDayOfMonth = selectedDate.getDate() === 1;
+
+        if (isFirstDayOfMonth) {
+            jumlahJkmHarField.disabled = false;
+            jumlahJkmHarField.required = true;
+            jsmoField.disabled = false;
+            jsmoField.required = true;
+            jsbField.disabled = false;
+            jsbField.required = true;
+        } else {
+            jumlahJkmHarField.disabled = true;
+            jumlahJkmHarField.required = false;
+            jsmoField.disabled = true;
+            jsmoField.required = false;
+            jsbField.disabled = true;
+            jsbField.required = false;
+        }
+    }
+
+    function fetchAndDisplayData() {
+        const unit_mesin = unitMesinDropdown.value;
+        const month = currentMonth + 1; // Mengubah bulan dari 0-based ke 1-based
+        const year = currentYear;
+
+        fetch(`/getJkmData?unit_mesin=${unit_mesin}&month=${month}&year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#dataTable tbody');
+                tableBody.innerHTML = ''; // Hapus isi tabel sebelumnya
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const tanggal = document.createElement('td');
+                    tanggal.textContent = new Date(item.tanggal).toLocaleDateString();
+                    row.appendChild(tanggal);
+
+                    const jkmHarian = document.createElement('td');
+                    jkmHarian.textContent = item.jkm_harian;
+                    row.appendChild(jkmHarian);
+
+                    const jumlahJkmHar = document.createElement('td');
+                    jumlahJkmHar.textContent = item.jumlah_jkm_har;
+                    row.appendChild(jumlahJkmHar);
+
+                    const jsmo = document.createElement('td');
+                    jsmo.textContent = item.jsmo;
+                    row.appendChild(jsmo);
+
+                    const jsb = document.createElement('td');
+                    jsb.textContent = item.jsb;
+                    row.appendChild(jsb);
+
+                    const keterangan = document.createElement('td');
+                    keterangan.textContent = item.keterangan;
+                    row.appendChild(keterangan);
+
+                    const action = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'deleteButton';
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteButton.addEventListener('click', () => deleteData(item._id, unit_mesin));
+                    action.appendChild(deleteButton);
+                    row.appendChild(action);
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function handleSubmit(event) {
+        event.preventDefault();
+    
+        const form = document.getElementById('jkmForm');
+        const formData = new FormData(form);
+        
+        fetch('/saveJkmData', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.json().then(err => {
+                    throw new Error(err.message);
+                });
+            }
+        })
+        .then(data => {
+            alert('Data berhasil disimpan');
+            fetchAndDisplayData();
+            form.reset();
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    }
+
+    function deleteData(id, unit_mesin) {
+        fetch(`/deleteJkmData/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Data berhasil dihapus');
+                fetchAndDisplayData();
+            }
+        })
+        .catch(error => console.error('Error deleting data:', error));
+    }
+
+    document.getElementById('prevMonthBtn').addEventListener('click', () => {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        updateMonthDisplay();
+        fetchAndDisplayData();
+    });
+
+    document.getElementById('nextMonthBtn').addEventListener('click', () => {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        updateMonthDisplay();
+        fetchAndDisplayData();
+    });
+
+    unitMesinDropdown.addEventListener('change', fetchAndDisplayData);
+
+    tanggalField.addEventListener('change', toggleFieldsBasedOnDate);
+
+    document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
+
+    updateMonthDisplay();
+    fetchAndDisplayData(); // Fetch data for the initial load
+});
+
+
+/*
+document.addEventListener('DOMContentLoaded', () => {
+    const tanggalField = document.getElementById('tanggal');
+    const jumlahJkmHarField = document.getElementById('jumlah_jkm_har');
+    const jsmoField = document.getElementById('jsmo');
+    const jsbField = document.getElementById('jsb');
+    const unitMesinDropdown = document.getElementById('unit_mesin_dropdown');
+    const unitMesinField = document.getElementById('unit_mesin');
+
+    let currentMonth = new Date().getMonth(); // Mulai dari 0 (Januari)
+    let currentYear = new Date().getFullYear();
+
+    function updateMonthDisplay() {
+        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    }
 
     function toggleFieldsBasedOnDate() {
         const selectedDate = new Date(tanggalField.value);
@@ -137,6 +235,58 @@ document.addEventListener('DOMContentLoaded', () => {
             jsbField.disabled = true;
             jsbField.required = false;
         }
+    }
+
+    function fetchAndDisplayData() {
+        const unit_mesin = unitMesinDropdown.value;
+        const month = currentMonth + 1; // Mengubah bulan dari 0-based ke 1-based
+        const year = currentYear;
+
+        fetch(`/getJkmData?unit_mesin=${unit_mesin}&month=${month}&year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#dataTable tbody');
+                tableBody.innerHTML = ''; // Hapus isi tabel sebelumnya
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    const tanggal = document.createElement('td');
+                    tanggal.textContent = new Date(item.tanggal).toLocaleDateString();
+                    row.appendChild(tanggal);
+
+                    const jkmHarian = document.createElement('td');
+                    jkmHarian.textContent = item.jkm_harian;
+                    row.appendChild(jkmHarian);
+
+                    const jumlahJkmHar = document.createElement('td');
+                    jumlahJkmHar.textContent = item.jumlah_jkm_har;
+                    row.appendChild(jumlahJkmHar);
+
+                    const jsmo = document.createElement('td');
+                    jsmo.textContent = item.jsmo;
+                    row.appendChild(jsmo);
+
+                    const jsb = document.createElement('td');
+                    jsb.textContent = item.jsb;
+                    row.appendChild(jsb);
+
+                    const keterangan = document.createElement('td');
+                    keterangan.textContent = item.keterangan;
+                    row.appendChild(keterangan);
+
+                    const action = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'deleteButton';
+                    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                    deleteButton.addEventListener('click', () => deleteData(item._id, unit_mesin));
+                    action.appendChild(deleteButton);
+                    row.appendChild(action);
+
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
     }
 
     toggleFieldsBasedOnDate();
@@ -255,3 +405,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan event listener untuk handleSubmit saat form di-submit
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
+*/
