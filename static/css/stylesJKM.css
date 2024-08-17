@@ -334,7 +334,7 @@ body{
     display: flex;
     flex-direction: row;
     height: fit-content;
-    align-items: end;
+    align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
 }
@@ -379,6 +379,8 @@ body{
     border: none;
     border-radius: 144px;
     padding: 8px;
+    width: 43px;
+    height: 43px;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -398,4 +400,12 @@ body{
     font-weight: var(--heading-h4-font-weight);
     font-size: var(--heading-h4-font-size);
     line-height: var(--heading-h4-line-height);
+}
+
+selectionNav {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
 }
