@@ -76,7 +76,7 @@ async function fetchAndDisplayData() {
             return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
         });
 
-        const tbody = document.getElementById('data-table').querySelector('tbody');
+        const tbody = document.getElementById('dataTable').querySelector('tbody');
         tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi dengan data baru
 
         filteredData.forEach(entry => {
