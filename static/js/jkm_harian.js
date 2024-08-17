@@ -30,10 +30,57 @@ function setActiveTab() {
 }
 window.onload = setActiveTab;
 
-let currentMonth = new Date().getMonth(); // 0 = January, 11 = December
+// Variabel untuk menyimpan bulan dan tahun saat ini
+let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-let currentUnitMesin = 'mesin1'; // Default unit mesin, bisa diubah sesuai kebutuhan
 
+// Fungsi untuk memperbarui tampilan bulan dan tahun
+function updateMonthDisplay() {
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+}
+
+// Fungsi untuk mengambil dan menampilkan data berdasarkan unit mesin dan bulan
+async function fetchAndDisplayData() {
+    const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
+
+    try {
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+        const data = await response.json();
+
+        const filteredData = data.filter(entry => {
+            const entryDate = new Date(entry.tanggal);
+            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+        });
+
+        const tbody = document.getElementById('dataTable').querySelector('tbody');
+        tbody.innerHTML = '';
+
+        filteredData.forEach(entry => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.tanggal}</td>
+                <td>${entry.jkm_harian}</td>
+                <td>${entry.jumlah_jkm_har}</td>
+                <td>${entry.jsmo}</td>
+                <td>${entry.jsb}</td>
+                <td>${entry.keterangan || ''}</td>
+                <td><button onclick="deleteRow(${entry._id})">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+// Fungsi untuk delete row (contoh, tambahkan implementasi server)
+function deleteRow(id) {
+    // Implementasi delete di sisi server
+    console.log(`Delete row with id: ${id}`);
+}
+
+// Event listener untuk tombol navigasi bulan
 document.getElementById('prevMonthBtn').addEventListener('click', () => {
     if (currentMonth === 0) {
         currentMonth = 11;
@@ -56,49 +103,16 @@ document.getElementById('nextMonthBtn').addEventListener('click', () => {
     fetchAndDisplayData();
 });
 
-document.getElementById('unit_mesin').addEventListener('change', (event) => {
-    currentUnitMesin = event.target.value;
+// Event listener untuk dropdown unit mesin
+document.getElementById('unit_mesin_dropdown').addEventListener('change', () => {
     fetchAndDisplayData();
 });
 
-function updateMonthDisplay() {
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
-}
-
-async function fetchAndDisplayData() {
-    try {
-        const response = await fetch(`/getJkmData?unit_mesin=${currentUnitMesin}`);
-        const data = await response.json();
-
-        const filteredData = data.filter(entry => {
-            const entryDate = new Date(entry.tanggal);
-            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-        });
-
-        const tbody = document.getElementById('dataTable').querySelector('tbody');
-        tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi dengan data baru
-
-        filteredData.forEach(entry => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${entry.tanggal}</td>
-                <td>${entry.unit_mesin}</td>
-                <td>${entry.jkm_harian}</td>
-                <td>${entry.jumlah_jkm_har}</td>
-                <td>${entry.jsmo}</td>
-                <td>${entry.jsb}</td>
-                <td>${entry.keterangan || ''}</td>
-            `;
-            tbody.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
-}
-
-updateMonthDisplay();
-fetchAndDisplayData();
+// Inisialisasi tampilan saat halaman pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    updateMonthDisplay();
+    fetchAndDisplayData();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const tanggalField = document.getElementById('tanggal');
