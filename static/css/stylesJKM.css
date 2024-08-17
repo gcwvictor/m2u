@@ -334,7 +334,7 @@ body{
     display: flex;
     flex-direction: row;
     height: fit-content;
-    align-items: center;
+    align-content: center;
     justify-content: space-between;
     margin-bottom: 8px;
 }
@@ -402,7 +402,7 @@ body{
     line-height: var(--heading-h4-line-height);
 }
 
-selectionNav {
+.selectionNav {
     display: flex;
     flex-direction: row;
     gap: 8px;
