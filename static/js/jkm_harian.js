@@ -32,6 +32,7 @@ window.onload = setActiveTab;
 
 let currentMonth = new Date().getMonth(); // 0 = January, 11 = December
 let currentYear = new Date().getFullYear();
+let currentUnitMesin = 'mesin1'; // Default unit mesin, bisa diubah sesuai kebutuhan
 
 document.getElementById('prevMonthBtn').addEventListener('click', () => {
     if (currentMonth === 0) {
@@ -55,6 +56,11 @@ document.getElementById('nextMonthBtn').addEventListener('click', () => {
     fetchAndDisplayData();
 });
 
+document.getElementById('unit_mesin').addEventListener('change', (event) => {
+    currentUnitMesin = event.target.value;
+    fetchAndDisplayData();
+});
+
 function updateMonthDisplay() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
@@ -62,7 +68,7 @@ function updateMonthDisplay() {
 
 async function fetchAndDisplayData() {
     try {
-        const response = await fetch(`/getJkmData?unit_mesin=mesin1`);
+        const response = await fetch(`/getJkmData?unit_mesin=${currentUnitMesin}`);
         const data = await response.json();
 
         const filteredData = data.filter(entry => {
@@ -70,8 +76,8 @@ async function fetchAndDisplayData() {
             return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
         });
 
-        const tbody = document.getElementById('dataTable').querySelector('tbody');
-        tbody.innerHTML = '';
+        const tbody = document.getElementById('data-table').querySelector('tbody');
+        tbody.innerHTML = ''; // Kosongkan tabel sebelum mengisi dengan data baru
 
         filteredData.forEach(entry => {
             const row = document.createElement('tr');
