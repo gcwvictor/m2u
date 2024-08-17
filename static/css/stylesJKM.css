@@ -368,6 +368,8 @@ body{
     flex-direction: row;
     gap: 4px;
     justify-content: center;
+    vertical-align: middle;
+    align-content: center;
 }
 
 .btnMonthNav {
@@ -391,8 +393,8 @@ body{
 }
 
 .monthLabel {
-    font-family: var(--p2-semibold-font-family);
-    font-weight: var(--p2-semibold-font-weight);
-    font-size: var(--p2-semibold-font-size);
-    line-height: var(--p2-semibold-line-height);
+    font-family: var(--p1-semibold-font-family);
+    font-weight: var(--p1-semibold-font-weight);
+    font-size: var(--p1-semibold-font-size);
+    line-height: var(--p1-semibold-line-height);
 }
