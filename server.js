@@ -230,34 +230,13 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
 });
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
-  /*
   try {
-    const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin }).sort({ tanggal: 1 });
+    const unitMesin = req.query.unit_mesin;
+    const results = await JkmData.find({ user: req.user._id, unit_mesin: unitMesin }).sort({ tanggal: 1 });
     res.status(200).json(results);
   } catch (err) {
     console.error(err);
     res.status(400).send('Error fetching data');
-  }
-    */
-  const { unit_mesin, month, year } = req.query;
-  try {
-    // Ambil data yang sesuai dengan unit_mesin, bulan dan tahun
-    const startDate = new Date(year, month, 1);
-    const endDate = new Date(year, parseInt(month) + 1, 0);
-
-    const results = await JkmData.find({
-        user: req.user._id,
-        unit_mesin: unit_mesin,
-        tanggal: {
-            $gte: startDate,
-            $lte: endDate
-        }
-    }).sort({ tanggal: 1 });
-
-    res.status(200).json(results);
-  } catch (err) {
-      console.error(err);
-      res.status(400).send('Error fetching data');
   }
 });
 
