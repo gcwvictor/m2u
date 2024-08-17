@@ -254,6 +254,7 @@ body{
     align-items: center;
     margin-top: 24px;
     margin-right: 48px;
+    gap: 8px;
 }
   
 .tableColumn{
@@ -377,7 +378,7 @@ body{
     color: var(--neutral-100);
     border: none;
     border-radius: 144px;
-    padding: 4px;
+    padding: 8px;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -393,8 +394,8 @@ body{
 }
 
 .monthLabel {
-    font-family: var(--p1-semibold-font-family);
-    font-weight: var(--p1-semibold-font-weight);
-    font-size: var(--p1-semibold-font-size);
-    line-height: var(--p1-semibold-line-height);
+    font-family: var(--heading-h4-font-family);
+    font-weight: var(--heading-h4-font-weight);
+    font-size: var(--heading-h4-font-size);
+    line-height: var(--heading-h4-line-height);
 }
