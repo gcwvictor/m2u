@@ -30,68 +30,69 @@ function setActiveTab() {
 }
 window.onload = setActiveTab;
 
-let currentDate = new Date();
+let currentMonth = new Date().getMonth(); // 0 = January, 11 = December
+let currentYear = new Date().getFullYear();
 
 document.getElementById('prevMonthBtn').addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() - 1);
-    updateMonthYearDisplay();
-    loadTableData();
+    if (currentMonth === 0) {
+        currentMonth = 11;
+        currentYear--;
+    } else {
+        currentMonth--;
+    }
+    updateMonthDisplay();
+    fetchAndDisplayData();
 });
 
 document.getElementById('nextMonthBtn').addEventListener('click', () => {
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    updateMonthYearDisplay();
-    loadTableData();
+    if (currentMonth === 11) {
+        currentMonth = 0;
+        currentYear++;
+    } else {
+        currentMonth++;
+    }
+    updateMonthDisplay();
+    fetchAndDisplayData();
 });
 
-function updateMonthYearDisplay() {
-    const monthYearText = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-    document.getElementById('currentMonthYear').innerText = monthYearText;
+function updateMonthDisplay() {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
 }
 
-function loadTableData() {
-    const month = currentDate.getMonth() + 1; // getMonth() returns 0-11
-    const year = currentDate.getFullYear();
+async function fetchAndDisplayData() {
+    try {
+        const response = await fetch(`/getJkmData?unit_mesin=mesin1`);
+        const data = await response.json();
 
-    // Buat request ke server untuk mengambil data berdasarkan bulan dan tahun
-    fetch(`/getJkmDataByMonth?month=${month}&year=${year}`)
-        .then(response => response.json())
-        .then(data => {
-            renderTable(data);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
+        const filteredData = data.filter(entry => {
+            const entryDate = new Date(entry.tanggal);
+            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
         });
+
+        const tbody = document.getElementById('dataTable').querySelector('tbody');
+        tbody.innerHTML = '';
+
+        filteredData.forEach(entry => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.tanggal}</td>
+                <td>${entry.unit_mesin}</td>
+                <td>${entry.jkm_harian}</td>
+                <td>${entry.jumlah_jkm_har}</td>
+                <td>${entry.jsmo}</td>
+                <td>${entry.jsb}</td>
+                <td>${entry.keterangan || ''}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
 }
 
-function renderTable(data) {
-    const table = document.getElementById('dataTable');
-    table.innerHTML = ''; // Kosongkan tabel sebelum mengisi data baru
-
-    // Buat header tabel
-    const header = table.createTHead().insertRow();
-    ['Tanggal', 'Unit Mesin', 'JKM Harian', 'Jumlah JKM HAR', 'JSMO', 'JSB', 'Keterangan'].forEach(text => {
-        const th = document.createElement('th');
-        th.innerText = text;
-        header.appendChild(th);
-    });
-
-    // Isi tabel dengan data
-    data.forEach(row => {
-        const tr = table.insertRow();
-        tr.insertCell(0).innerText = row.tanggal;
-        tr.insertCell(1).innerText = row.unit_mesin;
-        tr.insertCell(2).innerText = row.jkm_harian;
-        tr.insertCell(3).innerText = row.jumlah_jkm_har;
-        tr.insertCell(4).innerText = row.jsmo;
-        tr.insertCell(5).innerText = row.jsb;
-        tr.insertCell(6).innerText = row.keterangan;
-    });
-}
-
-// Inisialisasi tampilan bulan tahun dan load data pertama kali
-updateMonthYearDisplay();
-loadTableData();
+updateMonthDisplay();
+fetchAndDisplayData();
 
 document.addEventListener('DOMContentLoaded', () => {
     const tanggalField = document.getElementById('tanggal');

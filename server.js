@@ -230,8 +230,18 @@ app.post('/saveJkmData', ensureAuthenticated, async (req, res) => {
 });
 
 app.get('/getJkmData', ensureAuthenticated, async (req, res) => {
+  /*
   try {
     const results = await JkmData.find({ user: req.user._id, unit_mesin: req.query.unit_mesin }).sort({ tanggal: 1 });
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(400).send('Error fetching data');
+  }
+    */
+  try {
+    const unitMesin = req.query.unit_mesin;
+    const results = await JkmData.find({ user: req.user._id, unit_mesin: unitMesin }).sort({ tanggal: 1 });
     res.status(200).json(results);
   } catch (err) {
     console.error(err);
@@ -247,30 +257,6 @@ app.get('/getPreviousJkmData', ensureAuthenticated, async (req, res) => {
   } catch (err) {
       console.error('Error fetching previous JKM data:', err);
       res.status(400).json({ message: 'Error fetching previous JKM data', error: err.message });
-  }
-});
-
-app.get('/getJkmDataByMonth', ensureAuthenticated, async (req, res) => {
-  try {
-    const month = parseInt(req.query.month, 10);
-    const year = parseInt(req.query.year, 10);
-
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 1);
-
-    const results = await JkmData.find({
-      user: req.user._id,
-      unit_mesin: req.query.unit_mesin,
-      tanggal: {
-        $gte: startDate.toISOString().split('T')[0],
-        $lt: endDate.toISOString().split('T')[0]
-      }
-    }).sort({ tanggal: 1 });
-
-    res.status(200).json(results);
-  } catch (err) {
-    console.error(err);
-    res.status(400).send('Error fetching data');
   }
 });
 
