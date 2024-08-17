@@ -57,7 +57,7 @@ document.getElementById('nextMonthBtn').addEventListener('click', () => {
 
 function updateMonthDisplay() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    document.getElementById('current-month-year').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
 }
 
 async function fetchAndDisplayData() {
