@@ -391,8 +391,8 @@ body{
 }
 
 .monthLabel {
-    font-family: var(--s-semibold-font-family);
-    font-weight: var(--s-semibold-font-weight);
-    font-size: var(--s-semibold-font-size);
-    line-height: var(--s-semibold-line-height);
+    font-family: var(--p2-semibold-font-family);
+    font-weight: var(--p2-semibold-font-weight);
+    font-size: var(--p2-semibold-font-size);
+    line-height: var(--p2-semibold-line-height);
 }
