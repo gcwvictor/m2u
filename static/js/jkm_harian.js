@@ -30,8 +30,7 @@ function setActiveTab() {
 }
 window.onload = setActiveTab;
 
-// Variabel untuk menyimpan bulan dan tahun saat ini
-let currentMonth = new Date().getMonth();
+let currentMonth = new Date().getMonth(); // Mulai dari 0 (Januari)
 let currentYear = new Date().getFullYear();
 
 // Fungsi untuk memperbarui tampilan bulan dan tahun
@@ -40,26 +39,21 @@ function updateMonthDisplay() {
     document.getElementById('currentMonthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
 }
 
-// Fungsi untuk mengambil dan menampilkan data berdasarkan unit mesin dan bulan
+// Fungsi untuk mengambil dan menampilkan data berdasarkan unit mesin, bulan dan tahun
 async function fetchAndDisplayData() {
     const unit_mesin = document.getElementById('unit_mesin_dropdown').value;
 
     try {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}&month=${currentMonth}&year=${currentYear}`);
         const data = await response.json();
-
-        const filteredData = data.filter(entry => {
-            const entryDate = new Date(entry.tanggal);
-            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-        });
 
         const tbody = document.getElementById('dataTable').querySelector('tbody');
         tbody.innerHTML = '';
 
-        filteredData.forEach(entry => {
+        data.forEach(entry => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${entry.tanggal}</td>
+                <td>${new Date(entry.tanggal).toLocaleDateString()}</td>
                 <td>${entry.jkm_harian}</td>
                 <td>${entry.jumlah_jkm_har}</td>
                 <td>${entry.jsmo}</td>
