@@ -413,3 +413,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tambahkan event listener untuk handleSubmit saat form di-submit
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
+
+// Fungsi untuk mengekspor data tabel ke Excel
+function exportTableToExcel() {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentMonthName = monthNames[currentMonth];
+    const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
+
+    fetch(`/getJkmData`)
+        .then(response => response.json())
+        .then(data => {
+            const units = Array.from(new Set(data.map(entry => entry.unit_mesin))); // Dapatkan unit_mesin unik
+
+            const workbook = XLSX.utils.book_new();
+
+            units.forEach(unit => {
+                const filteredData = data.filter(entry => {
+                    const entryDate = new Date(entry.tanggal);
+                    return entry.unit_mesin === unit && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+                });
+
+                if (filteredData.length > 0) {
+                    const sheetData = filteredData.map(entry => ({
+                        "Tanggal": entry.tanggal,
+                        "JKM Harian": entry.jkm_harian,
+                        "Jumlah JKM Har": entry.jumlah_jkm_har,
+                        "JSMO": entry.jsmo,
+                        "JSB": entry.jsb,
+                        "Keterangan": entry.keterangan || ''
+                    }));
+
+                    const worksheet = XLSX.utils.json_to_sheet(sheetData);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, unit);
+                }
+            });
+
+            XLSX.writeFile(workbook, fileName);
+        })
+        .catch(error => console.error('Error exporting data:', error));
+}
+
+// Event listener untuk tombol ekspor
+document.querySelector('.btnExport').addEventListener('click', exportTableToExcel);
