@@ -454,4 +454,4 @@ function exportTableData() {
 }
 
 // Event listener untuk tombol ekspor
-document.querySelector('.btnExport').addEventListener('click', exportTableToExcel);
+document.querySelector('.btnExport').addEventListener('click', exportTableData);
