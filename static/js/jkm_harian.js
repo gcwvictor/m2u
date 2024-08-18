@@ -318,6 +318,20 @@ async function fetchAndDisplayData(unit_mesin = null) {
     }
 }
 
+// Fungsi untuk menghapus data
+function deleteData(id, unit_mesin) {
+    fetch(`/deleteJkmData/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Data berhasil dihapus');
+            fetchAndDisplayData(unit_mesin); // Refresh tabel setelah penghapusan
+        }
+    })
+    .catch(error => console.error('Error deleting data:', error));
+}
+
 // Panggil fetchAndDisplayData() setiap kali dropdown unit_mesin berubah
 document.getElementById('unit_mesin_dropdown').addEventListener('change', () => {
     fetchAndDisplayData(document.getElementById('unit_mesin_dropdown').value);
