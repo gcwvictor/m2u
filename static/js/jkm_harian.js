@@ -294,7 +294,7 @@ async function fetchAndDisplayData(unit_mesin = null) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${entry.tanggal}</td>
-                <td>${entry.unit_mesin}</td>
+                
                 <td>${entry.jkm_harian}</td>
                 <td>${entry.jumlah_jkm_har}</td>
                 <td>${entry.jsmo}</td>
