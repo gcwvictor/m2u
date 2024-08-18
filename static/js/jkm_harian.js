@@ -294,13 +294,23 @@ async function fetchAndDisplayData(unit_mesin = null) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${entry.tanggal}</td>
-                
                 <td>${entry.jkm_harian}</td>
                 <td>${entry.jumlah_jkm_har}</td>
                 <td>${entry.jsmo}</td>
                 <td>${entry.jsb}</td>
                 <td>${entry.keterangan || ''}</td>
             `;
+            // Kolom untuk tindakan seperti mengedit atau menghapus data
+            const action = document.createElement('td');
+
+            // Tambahkan tombol hapus
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'deleteButton';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.addEventListener('click', () => deleteData(entry._id, mesin));
+            action.appendChild(deleteButton);
+
+            row.appendChild(action);
             tbody.appendChild(row);
         });
     } catch (error) {
