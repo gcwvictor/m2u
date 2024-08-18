@@ -415,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Fungsi untuk mengekspor data tabel ke Excel
-function exportTableToExcel() {
+function exportTableData() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
