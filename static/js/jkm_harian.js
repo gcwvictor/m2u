@@ -414,18 +414,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
 
+document.getElementById('btnExport').removeEventListener('click', exportTableData);
 document.getElementById('btnExport').addEventListener('click', exportTableData);
 
 async function exportTableData() {
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
-    const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
+    const unitMesins = [
+        { value: "1", text: "DEUTZ MWM TBD 616 V12 G3 S/N 2205106" },
+        { value: "2", text: "MTU 18V 2000 G62 S/N 539100415" },
+        { value: "3", text: "MTU 12V 2000 G62 S/N 535102284" },
+        { value: "4", text: "DEUTZ MWM TBD 616 V12 G3 S/N 2204728" }
+    ];
     const workbook = XLSX.utils.book_new();
 
-    for (const unit_mesin of unitMesins) {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+    for (const unit of unitMesins) {
+        const response = await fetch(`/getJkmData?unit_mesin=${unit.value}`);
         const data = await response.json();
 
         const filteredData = data.filter(entry => {
@@ -440,7 +446,7 @@ async function exportTableData() {
         filteredData.forEach(entry => {
             rows.push([
                 entry.tanggal,
-                entry.unit_mesin,
+                unit.text,  // Menggunakan nama mesin yang telah didefinisikan
                 entry.jkm_harian,
                 entry.jumlah_jkm_har,
                 entry.jsmo,
@@ -450,7 +456,7 @@ async function exportTableData() {
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+        XLSX.utils.book_append_sheet(workbook, worksheet, `${unit.value} - ${unit.text}`);
     }
 
     XLSX.writeFile(workbook, fileName);
