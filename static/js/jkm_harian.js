@@ -216,13 +216,6 @@ async function exportTableToExcel() {
         const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
         const workbook = XLSX.utils.book_new();
 
-        const mesinNamesMap = {
-            1: '1. S/N 2205106',
-            2: '2. S/N 539100415',
-            3: '3. S/N 535102284',
-            4: '4. S/N 2204728'
-        };
-
         for (const unit_mesin of unitMesins) {
             const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
             const data = await response.json();
@@ -239,7 +232,7 @@ async function exportTableToExcel() {
             filteredData.forEach(entry => {
                 rows.push([
                     entry.tanggal,
-                    mesinNamesMap[unit_mesin],  // Gunakan nama mesin yang dikustomisasi
+                    entry.unit_mesin,
                     entry.jkm_harian,
                     entry.jumlah_jkm_har,
                     entry.jsmo,
@@ -249,8 +242,7 @@ async function exportTableToExcel() {
             });
 
             const worksheet = XLSX.utils.aoa_to_sheet(rows);
-            const sheetName = mesinNamesMap[unit_mesin];  // Gunakan nama mesin yang dikustomisasi sebagai nama sheet
-            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
         }
 
         XLSX.writeFile(workbook, fileName);
