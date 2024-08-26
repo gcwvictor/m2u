@@ -421,11 +421,18 @@ async function exportTableToExcel() {
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
-    const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
+    //const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
+    // Definisikan nama lengkap mesin untuk setiap unit
+    const unitMesins = [
+        { value: "1", text: "1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106" },
+        { value: "2", text: "2. MTU 18V 2000 G62 S/N 539100415" },
+        { value: "3", text: "3. MTU 12V 2000 G62 S/N 535102284" },
+        { value: "4", text: "4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728" }
+    ];
     const workbook = XLSX.utils.book_new();
 
-    for (const unit_mesin of unitMesins) {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+    for (const unit of unitMesins) {
+        const response = await fetch(`/getJkmData?unit_mesin=${unit.value}`);
         const data = await response.json();
 
         const filteredData = data.filter(entry => {
@@ -440,7 +447,7 @@ async function exportTableToExcel() {
         filteredData.forEach(entry => {
             rows.push([
                 entry.tanggal,
-                entry.unit_mesin,
+                unit.text,  // Menggunakan nama mesin yang lengkap
                 entry.jkm_harian,
                 entry.jumlah_jkm_har,
                 entry.jsmo,
@@ -450,7 +457,10 @@ async function exportTableToExcel() {
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+
+        // Gunakan format nama sheet yang lebih deskriptif
+        const sheetName = `${unit.text}`;
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     }
 
     XLSX.writeFile(workbook, fileName);
