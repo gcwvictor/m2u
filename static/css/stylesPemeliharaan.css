@@ -362,3 +362,33 @@ body{
     font-size: var(--s-medium-font-size);
     line-height: var(--s-medium-line-height);
 }
+
+/* Overlay gelap */
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Warna hitam transparan */
+    display: none; /* Tersembunyi secara default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Pastikan overlay berada di atas konten lainnya */
+}
+
+/* Spinner loading */
+#loadingSpinner {
+    border: 8px solid var(--neutral-30); /* Light grey */
+    border-top: 8px solid var(--secondary-main); /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+}
+
+/* Animasi spin */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

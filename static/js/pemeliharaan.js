@@ -176,6 +176,10 @@ document.getElementById('exportTable').addEventListener('click', function() {
 });
 
 async function exportTableData() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    // Tampilkan overlay saat mulai loading
+    loadingOverlay.style.display = 'flex';
+
     try {
         const response = await fetch('/getPemeliharaanData');
         const data = await response.json();
@@ -202,5 +206,9 @@ async function exportTableData() {
         XLSX.writeFile(workbook, 'Pemeliharaan Harian.xlsx');
     } catch (error) {
         console.error('Error exporting data:', error);
+        alert('Terjadi kesalahan saat mengekspor data.');
+    } finally {
+        // Sembunyikan overlay setelah proses selesai
+        loadingOverlay.style.display = 'none';
     }
 }
