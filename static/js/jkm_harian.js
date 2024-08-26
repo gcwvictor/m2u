@@ -239,7 +239,7 @@ async function exportTableToExcel() {
             filteredData.forEach(entry => {
                 rows.push([
                     entry.tanggal,
-                    entry.mesinNamesMap[unit_mesin],  // Gunakan nama mesin yang dikustomisasi
+                    mesinNamesMap[unit_mesin],  // Gunakan nama mesin yang dikustomisasi
                     entry.jkm_harian,
                     entry.jumlah_jkm_har,
                     entry.jsmo,
