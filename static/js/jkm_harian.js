@@ -208,6 +208,14 @@ async function exportTableData() {
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
+    // Mapping antara value mesin dan nama yang lebih deskriptif
+    const unitMesinNames = {
+        1: "1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106",
+        2: "2. MTU 18V 2000 G62 S/N 539100415",
+        3: "3. MTU 12V 2000 G62 S/N 535102284",
+        4: "4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728"
+    };
+
     const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
     const workbook = XLSX.utils.book_new();
 
@@ -237,7 +245,8 @@ async function exportTableData() {
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+        const sheetName = unitMesinNames[unit_mesin] || `Unit Mesin ${unit_mesin}`;
+        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     }
 
     XLSX.writeFile(workbook, fileName);
