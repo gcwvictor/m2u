@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
 
-document.getElementById('btnExport').removeEventListener('click', exportTableData);
+//document.getElementById('btnExport').removeEventListener('click', exportTableData);
 document.getElementById('btnExport').addEventListener('click', exportTableData);
 
 async function exportTableData() {
