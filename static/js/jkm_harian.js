@@ -217,10 +217,10 @@ async function exportTableToExcel() {
         const workbook = XLSX.utils.book_new();
 
         const mesinNamesMap = {
-            '1': '1. S/N 2205106',
-            '2': '2. S/N 539100415',
-            '3': '3. S/N 535102284',
-            '4': '4. S/N 2204728'
+            1: '1. S/N 2205106',
+            2: '2. S/N 539100415',
+            3: '3. S/N 535102284',
+            4: '4. S/N 2204728'
         };
 
         for (const unit_mesin of unitMesins) {
