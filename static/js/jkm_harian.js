@@ -209,12 +209,19 @@ async function exportTableToExcel() {
     loadingOverlay.style.display = 'flex';
     
     try {
-        const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const currentMonthName = monthNames[currentMonth];
         const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
         const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
         const workbook = XLSX.utils.book_new();
+
+        const mesinNamesMap = {
+            '1': '1. S/N 2205106',
+            '2': '2. S/N 539100415',
+            '3': '3. S/N 535102284',
+            '4': '4. S/N 2204728'
+        };
 
         for (const unit_mesin of unitMesins) {
             const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
@@ -232,7 +239,7 @@ async function exportTableToExcel() {
             filteredData.forEach(entry => {
                 rows.push([
                     entry.tanggal,
-                    entry.unit_mesin,
+                    mesinNamesMap[unit_mesin],  // Gunakan nama mesin yang dikustomisasi
                     entry.jkm_harian,
                     entry.jumlah_jkm_har,
                     entry.jsmo,
@@ -242,7 +249,8 @@ async function exportTableToExcel() {
             });
 
             const worksheet = XLSX.utils.aoa_to_sheet(rows);
-            XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+            const sheetName = mesinNamesMap[unit_mesin];  // Gunakan nama mesin yang dikustomisasi sebagai nama sheet
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
         }
 
         XLSX.writeFile(workbook, fileName);
