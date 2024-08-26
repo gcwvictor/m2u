@@ -414,44 +414,44 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
 
-// Fungsi untuk mengekspor data tabel ke Excel
-function exportTableData() {
+document.getElementById('btnExport').addEventListener('click', exportTableData);
+
+async function exportTableData() {
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
-    fetch(`/getJkmData`)
-        .then(response => response.json())
-        .then(data => {
-            const units = Array.from(new Set(data.map(entry => entry.unit_mesin))); // Dapatkan unit_mesin unik
+    const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
+    const workbook = XLSX.utils.book_new();
 
-            const workbook = XLSX.utils.book_new();
+    for (const unit_mesin of unitMesins) {
+        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+        const data = await response.json();
 
-            units.forEach(unit => {
-                const filteredData = data.filter(entry => {
-                    const entryDate = new Date(entry.tanggal);
-                    return entry.unit_mesin === unit && entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-                });
+        const filteredData = data.filter(entry => {
+            const entryDate = new Date(entry.tanggal);
+            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+        });
 
-                if (filteredData.length > 0) {
-                    const sheetData = filteredData.map(entry => ({
-                        "Tanggal": entry.tanggal,
-                        "JKM Harian": entry.jkm_harian,
-                        "Jumlah JKM Har": entry.jumlah_jkm_har,
-                        "JSMO": entry.jsmo,
-                        "JSB": entry.jsb,
-                        "Keterangan": entry.keterangan || ''
-                    }));
+        const rows = [
+            ["Tanggal", "Unit Mesin", "JKM Harian", "Jumlah JKM HAR", "JSMO", "JSB", "Keterangan"]
+        ];
 
-                    const worksheet = XLSX.utils.json_to_sheet(sheetData);
-                    XLSX.utils.book_append_sheet(workbook, worksheet, unit);
-                }
-            });
+        filteredData.forEach(entry => {
+            rows.push([
+                entry.tanggal,
+                entry.unit_mesin,
+                entry.jkm_harian,
+                entry.jumlah_jkm_har,
+                entry.jsmo,
+                entry.jsb,
+                entry.keterangan || ''
+            ]);
+        });
 
-            XLSX.writeFile(workbook, fileName);
-        })
-        .catch(error => console.error('Error exporting data:', error));
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+    }
+
+    XLSX.writeFile(workbook, fileName);
 }
-
-// Event listener untuk tombol ekspor
-document.querySelector('.btnExport').addEventListener('click', exportTableData);
