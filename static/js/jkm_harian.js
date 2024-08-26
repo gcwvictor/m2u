@@ -201,9 +201,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
 
-document.getElementById('btnExport').addEventListener('click', exportTableData);
+document.getElementById('btnExport').addEventListener('click', exportTableToExcel);
 
-async function exportTableData() {
+async function exportTableToExcel() {
     const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
@@ -245,6 +245,7 @@ async function exportTableData() {
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        const sheetName = unitMesinNames[unit_mesin] || `${unit_mesin}`;
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     }
 
