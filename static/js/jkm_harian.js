@@ -201,9 +201,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('jkmForm').addEventListener('submit', handleSubmit);
 });
 
-document.getElementById('btnExport').addEventListener('click', exportTableToExcel);
+document.getElementById('btnExport').addEventListener('click', exportTableData);
 
-async function exportTableToExcel() {
+async function exportTableData() {
     const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     const currentMonthName = monthNames[currentMonth];
     const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
