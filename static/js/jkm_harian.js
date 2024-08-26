@@ -416,23 +416,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.getElementById('btnExport').addEventListener('click', exportTableToExcel);
 
+// Fungsi untuk Mengekspor Data ke Excel
 async function exportTableToExcel() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    const currentMonthName = monthNames[currentMonth];
-    const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
-
-    //const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
-    // Definisikan nama lengkap mesin untuk setiap unit
-    const unitMesins = [
-        { value: "1", text: "1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106" },
-        { value: "2", text: "2. MTU 18V 2000 G62 S/N 539100415" },
-        { value: "3", text: "3. MTU 12V 2000 G62 S/N 535102284" },
-        { value: "4", text: "4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728" }
+    const monthNames = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     ];
+    const currentMonthName = monthNames[currentMonth];
+    const fileName = `JKM_Harian_${currentMonthName}_${currentYear}.xlsx`;
+
+    const mesinDropdown = document.getElementById('unit_mesin_dropdown');
+    const options = Array.from(mesinDropdown.options);
+
     const workbook = XLSX.utils.book_new();
 
-    for (const unit of unitMesins) {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit.value}`);
+    for (const option of options) {
+        const unitValue = option.value;
+        const unitText = option.text;
+
+        const response = await fetch(`/getJkmData?unit_mesin=${unitValue}`);
         const data = await response.json();
 
         const filteredData = data.filter(entry => {
@@ -440,28 +442,26 @@ async function exportTableToExcel() {
             return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
         });
 
-        const rows = [
-            ["Tanggal", "Unit Mesin", "JKM Harian", "Jumlah JKM HAR", "JSMO", "JSB", "Keterangan"]
-        ];
+        if (filteredData.length > 0) {
+            const formattedData = filteredData.map(entry => ({
+                "Tanggal": new Date(entry.tanggal).toLocaleDateString('id-ID'),
+                "Unit Mesin": unitText,
+                "JKM Harian": entry.jkm_harian,
+                "Jumlah JKM HAR": entry.jumlah_jkm_har || '-',
+                "JSMO": entry.jsmo || '-',
+                "JSB": entry.jsb || '-',
+                "Keterangan": entry.keterangan || '-'
+            }));
 
-        filteredData.forEach(entry => {
-            rows.push([
-                entry.tanggal,
-                unit.text,  // Menggunakan nama mesin yang lengkap
-                entry.jkm_harian,
-                entry.jumlah_jkm_har,
-                entry.jsmo,
-                entry.jsb,
-                entry.keterangan || ''
-            ]);
-        });
-
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-
-        // Gunakan format nama sheet yang lebih deskriptif
-        const sheetName = `${unit.text}`;
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+            const worksheet = XLSX.utils.json_to_sheet(formattedData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, unitText);
+        }
     }
 
-    XLSX.writeFile(workbook, fileName);
+    if (workbook.SheetNames.length === 0) {
+        alert('Tidak ada data untuk diekspor pada bulan dan tahun yang dipilih.');
+    } else {
+        XLSX.writeFile(workbook, fileName);
+        alert('Data berhasil diekspor ke Excel.');
+    }
 }
