@@ -245,7 +245,7 @@ async function exportTableData() {
         });
 
         const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        const sheetName = unitMesinNames[unit_mesin] || `Unit Mesin ${unit_mesin}`;
+        const sheetName = unitMesinNames[unit_mesin] || `${unit_mesin}`;
         XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
     }
 
