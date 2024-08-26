@@ -204,50 +204,54 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('btnExport').addEventListener('click', exportTableToExcel);
 
 async function exportTableToExcel() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    const currentMonthName = monthNames[currentMonth];
-    const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    // Tampilkan overlay saat mulai loading
+    loadingOverlay.style.display = 'flex';
+    
+    try {
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const currentMonthName = monthNames[currentMonth];
+        const fileName = `JKM Harian (${currentMonthName} ${currentYear}).xlsx`;
 
-    // Mapping antara value mesin dan nama yang lebih deskriptif
-    const unitMesinNames = {
-        1: "1. DEUTZ MWM TBD 616 V12 G3 S/N 2205106",
-        2: "2. MTU 18V 2000 G62 S/N 539100415",
-        3: "3. MTU 12V 2000 G62 S/N 535102284",
-        4: "4. DEUTZ MWM TBD 616 V12 G3 S/N 2204728"
-    };
+        const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
+        const workbook = XLSX.utils.book_new();
 
-    const unitMesins = Array.from(document.getElementById('unit_mesin_dropdown').options).map(option => option.value);
-    const workbook = XLSX.utils.book_new();
+        for (const unit_mesin of unitMesins) {
+            const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
+            const data = await response.json();
 
-    for (const unit_mesin of unitMesins) {
-        const response = await fetch(`/getJkmData?unit_mesin=${unit_mesin}`);
-        const data = await response.json();
+            const filteredData = data.filter(entry => {
+                const entryDate = new Date(entry.tanggal);
+                return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
+            });
 
-        const filteredData = data.filter(entry => {
-            const entryDate = new Date(entry.tanggal);
-            return entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear;
-        });
+            const rows = [
+                ["Tanggal", "Unit Mesin", "JKM Harian", "Jumlah JKM HAR", "JSMO", "JSB", "Keterangan"]
+            ];
 
-        const rows = [
-            ["Tanggal", "Unit Mesin", "JKM Harian", "Jumlah JKM HAR", "JSMO", "JSB", "Keterangan"]
-        ];
+            filteredData.forEach(entry => {
+                rows.push([
+                    entry.tanggal,
+                    entry.unit_mesin,
+                    entry.jkm_harian,
+                    entry.jumlah_jkm_har,
+                    entry.jsmo,
+                    entry.jsb,
+                    entry.keterangan || ''
+                ]);
+            });
 
-        filteredData.forEach(entry => {
-            rows.push([
-                entry.tanggal,
-                entry.unit_mesin,
-                entry.jkm_harian,
-                entry.jumlah_jkm_har,
-                entry.jsmo,
-                entry.jsb,
-                entry.keterangan || ''
-            ]);
-        });
+            const worksheet = XLSX.utils.aoa_to_sheet(rows);
+            XLSX.utils.book_append_sheet(workbook, worksheet, unit_mesin);
+        }
 
-        const worksheet = XLSX.utils.aoa_to_sheet(rows);
-        const sheetName = unitMesinNames[unit_mesin] || `${unit_mesin}`;
-        XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        XLSX.writeFile(workbook, fileName);
+    } catch (error) {
+        console.error('Error exporting data:', error);
+        alert('Terjadi kesalahan saat mengekspor data.');
+    } finally {
+        // Sembunyikan overlay setelah proses selesai
+        loadingOverlay.style.display = 'none';
     }
-
-    XLSX.writeFile(workbook, fileName);
 }
